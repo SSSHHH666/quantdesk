@@ -43,7 +43,7 @@
 | **M3 自动化** | ✅ **通过** | 调度器 3 job 启停 + 手动触发 + trace 链路 + 通知/日志可用；默认关闭（`automation.enabled: false`） |
 | **M4 交付** | ✅ **通过** | 断网 Mock 冒烟、`start.bat`、RUNBOOK/THIRD_PARTY、备份/恢复、发版自检 **PASS 11/0/0** |
 | **M5 打磨** | 🟡 **有条件通过** | 12 页 UI 全部落地（含 `screener.py`）、报告导出/CSV、USER_GUIDE/DEMO_WALKTHROUGH；但设置页保存类、审计/日志查询、策略实例等仍为“占位待接” |
-| **M6 研究阶段** | ⏸ **暂停** | 短线模型 v1 `usable=False`；全市场筛选 F15 验证 RankIC 为负（`SCREENER_VALIDATION.md`）→ 研究阶段暂停，恢复条件见 `ROADMAP.md` §8.5 |
+| **M6 研究阶段** | 🟡 **本轮完成（2026-10-26 恢复后 P0-1…P0-5）** | 扩样本到 **200 只 / 349,466 行**；36 组严格 walk-forward OOS（6 标签×2 特征集×3 模型）完成；**34/36 未过门槛**，2 组通过但经可执行性检验判定不可交易（涨停封板买不进，剔除后扣费净超额为负）→ **仍无可执行短线选股边际**；详见 `docs/M6_RESEARCH_REPORT.md` / `docs/M6_QA_AUDIT.md` |
 
 ---
 
@@ -123,3 +123,23 @@
 | 版本 | 日期 | 变更 | 评审人 |
 |---|---|---|---|
 | v1.0 | 2026-10-26 | 初版：M0–M5 完成度与证据（377 passed/60 deselected/1 xfailed、release_check PASS 11/0/0、28 表校验、真实回测基线、M2/M3/M4 实测）、已验证能力、未完成/研究阶段清单（短线 v1 不可用、F14/F15 暂停、设置/审计占位、G1/G5 未执行、P1 xfail）、最终交付清单、上线须知与风险声明、最终判断 | pm-quant |
+| v1.1 | 2026-10-26 | **M6 恢复后本轮进展（P0-1…P0-5 + P1）**：①数据扩样 50→200 只（349,466 行、13/13 覆盖审计 PASS、零 mock）；②研究框架加固（复权总收益标签、持有期=horizon、严格 gate、bootstrap/多重比较、purge/embargo 折元数据）；③36 组 walk-forward OOS 矩阵完成（34/36 未过门槛；2 组 PASS 均隔夜缺口，但涨停封板不可成交、剔除后扣费净超额为负）；④结论：**仍无可执行短线选股边际**，不接入推荐/UI，维持研究阶段；⑤P1：回测报告强制“同仓位被动基准+样本外标记”；⑥QA 独立审计（截断不变性/复权标签/purge-embargo/可复现/gate/bars_200 数据）PASS，闭环 F1–F8；⑦测试 405 passed。详见 `docs/M6_RESEARCH_REPORT.md`、`docs/M6_QA_AUDIT.md` | Lead（研究负责人） |
+
+---
+
+## 9. M6 研究阶段进展（2026-10-26 恢复后 · 本轮）
+
+> 详细实验与判定见 `docs/M6_RESEARCH_REPORT.md`；独立审计见 `docs/M6_QA_AUDIT.md`。
+
+| 项 | 状态与证据 |
+|---|---|
+| P0-1 扩样本与数据 | ✅ 200 只 A 股（沪主板 56/深主板 56/创业板 48/科创板 40）、349,466 行、2019-01-02~2026-10-23、不复权 OHLCV + hfq 复权因子、source 全 akshare、零 mock；覆盖审计 13/13 PASS（`runtime/exports/universe_coverage_200.md`）；分年截面 2019 中位 147 只→2026 年 200 只 |
+| P0-2 标签工程 | ✅ 6 种标签（3/5/10 日≥2%、5 日截面 Top20%、5 日三分类、次日跳空），全部复权总收益口径；样本量/正样本率/不平衡处理落盘 |
+| P0-3 特征工程 | ✅ 32 特征（18 量价 + 14 市场状态/相对强弱/涨跌停邻近/连续放量/跳空/ATR/换手/量价背离）；价格类用复权价、涨跌停距离用不复权；as_of 对齐经截断不变性验证（32 特征逐元素 0 差异） |
+| P0-4 模型与验证 | ✅ logistic/gbdt/gbdt_rank × 2 特征集 × 6 标签 = 36 组；76–77 折滚动 walk-forward、purge=max(5,h)、embargo=5；OOS 28.6–28.8 万样本；**34/36 未过门槛**；2 组 PASS 为隔夜缺口，经可执行性检验（收盘涨停不可买）剔除后扣费净超额 −0.074%/日 → 不可执行 |
+| P0-5 结论与产出 | ✅ `docs/M6_RESEARCH_REPORT.md` 落盘；**无通过项 → 不接入 recommend/自动化、UI 维持研究阶段** |
+| P1 复用 | ✅ 回测报告强制输出“同仓位被动基准 + 样本外标记”（`scripts/run_backtest.py`、`backtest/validation.py`、`tests/test_backtest_passive.py`）；实测 ma_cross −0.11% vs 被动 −2.40%（与 REVIEW_M1 一致） |
+| QA 独立审计 | ✅ 无未来函数/复权标签/purge-embargo/可复现/被动基准/gate/数据来源/性能 全 PASS；闭环 F1–F8；`tests/test_m6_research.py` 21 用例；全量 **405 passed / 60 deselected** |
+| 已知 P1 契约缺口（xfail） | 🟡 仍在：`Recommendation.as_dict()` 的 `name` 字段（不影响 M6 研究结论） |
+
+**一句话**：M6 研究流程本轮完整跑通、数据与审计达标、结论仍为**无可执行短线选股边际**；系统仍只可作“研究 + 模拟盘”工具，不得宣称有效、不得接入自动化。

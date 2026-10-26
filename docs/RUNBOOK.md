@@ -609,3 +609,63 @@ rem —— 测试 ——
 | v1.2 | 2026-10-25 | 二次校正（21:28 快照）：9 页全部落地 → §2.1 状态说明改为"9 页已落地、未实现区块为建设中"；`runtime` 已生成 → §3.1 与 §4 第 11 行改为"正常会自动生成/勿手造空库/勿单删 WAL 同族文件" | 交付文档维护（eval-data） |
 | v1.1 | 2026-10-25 | 校正交付状态：`app.py`（M0-07）与 6 个页面已交付 → §2.1 改为"双击即可启动、未交付页为建设中占位"；§3.1 与 §4 第 6/11 行同步修正（`runtime` 待 `init_db.py` 交付后生成） | 交付文档维护（eval-data） |
 | v1.0 | 2026-10-25 | 初版：环境准备（含 venv 路径/依赖安装/4 个实际踩坑）、一键启动、首次运行引导、20 条故障排查总表、日志与数据目录、停止与重置、备份恢复、升级回滚、实测版本基线、命令速查 | 交付文档维护（eval-data） |
+
+
+---
+
+## 回测报告标准输出（M6 P1）
+
+> 适用：`scripts/run_backtest.py`（单区间回测）。本节只追加口径说明，不改历史结论。
+
+### 命令
+
+```bat
+rem 复现冒烟（真实不复权数据；3 标的、2025-01-02~2026-10-23、100 万本金）
+.venv\Scripts\python.exe scripts\run_backtest.py --strategy ma_cross ^
+  --symbols 600519.SH,000001.SZ,300750.SZ ^
+  --start 2025-01-02 --end 2026-10-23 --cash 1000000 ^
+  --provider cache --benchmark= --run-id smoke_m6p1
+
+rem 其它策略/参数（报告自动写入 runtime/exports/）
+.venv\Scripts\python.exe scripts\run_backtest.py --strategy value_quality ^
+  --symbols 600519.SH,000001.SZ,300750.SZ --start 2025-01-02 --end 2026-10-23 ^
+  --cash 1000000 --provider cache --benchmark=
+```
+
+### 价格口径（合规红线）
+
+- 回测撮合/手数/资金**一律不复权真实价**：`BarCache.load(adjust="none")`（不读 `data.adjust: hfq`）。
+- 控制台打印 `价格口径  不复权真实价（price_adjust=none）`；报告 JSON 字段 `price_adjust="none"`、`price_caliber`。
+- 只有缓存/数据层拿不到数据时才降级 Mock（`is_mock=True`，控制台红色提示），此时报告写 “Mock 离线示例价（非真实行情）”，不可当作真实结果。
+
+### 同仓位被动基准（报告必含）
+
+定义：同区间、同初始资金、同标的列表、单票目标仓位 = 初始资金 × `position_pct`%（默认 10%，与 `BacktestEngine.default_position_pct` 一致）；期初（首个可用交易日收盘）按不复权收盘价 + 买入滑点等权买入持有，**期间不调仓**；买入按整手取整，目标不足 1 手时沿用引擎最小 1 手规则（1 手成本 ≤ 单票仓位上限 20% 才买）；费用与撮合同源（`broker_sim.FeeModel`：佣金/印花/过户/规费 + 滑点）；剩余现金保留。
+
+输出：被动总收益 / 年化 / 最大回撤 / Sharpe / 期末权益；与策略对照输出 超额（pp）= 策略总收益 − 被动总收益、策略 MDD vs 被动 MDD。
+
+### 样本外标记
+
+`scripts/run_backtest.py` 是**单区间回测**（非 walk-forward），报告固定：
+
+- JSON：`"oos": false`，`"oos_marker": "否（单区间回测；walk-forward 样本外请用 backtest/validation.py）"`；
+- CSV：`样本外 = 否`。
+
+> 禁止把单区间结果说成样本外。当前仓库 walk-forward 实现位于 `strategy/backtest_short.py`（短线）与 `strategy/m6_research.py`（研究矩阵）；`backtest/validation.py` 的 walk-forward 切分属 P8 规划。
+
+### 产出文件（`runtime/exports/`）
+
+`backtest_report_<run_id>.json`（英文字段，可程序读取）与 `backtest_report_<run_id>.csv`（中文列，单行，UTF-8-SIG，Excel 可直接打开）。
+
+JSON 字段清单：`report_version`、`run_id`、`strategy`、`params`、`symbols`、`start_date`、`end_date`、`price_adjust`、`price_caliber`、`strategy_total_return`、`strategy_total_return_pct`、`passive_total_return`、`passive_total_return_pct`、`excess_return_pp`、`strategy_annual_return`、`passive_annual_return`、`strategy_max_drawdown`、`passive_max_drawdown`、`strategy_sharpe`、`passive_sharpe`、`initial_cash`、`final_equity`、`passive_final_equity`、`strategy_total_fees`、`passive_total_fees`、`n_days`、`oos`、`oos_marker`、`oos_note`、`passive_method`、`engine_price_mode`、`is_mock`、`generated_at`。
+
+CSV 列：`策略`、`标的`、`区间`、`价格口径`、`策略收益`、`被动收益`、`超额pp`、`策略MDD`、`被动MDD`、`初始资金`、`期末权益`、`被动期末权益`、`样本外`、`生成时间`、`run_id`。
+
+### 回归测试
+
+```bat
+.venv\Scripts\python.exe runtime\_run_pytest.py tests/test_backtest_passive.py -q
+.venv\Scripts\python.exe runtime\_run_pytest.py tests -q
+```
+
+覆盖：同起点/同资金/同标的/同仓位、超额 = 策略 − 被动、JSON/CSV 字段可回读、同参数可复现、单区间 `oos=False`、CLI 必须用 `adjust="none"` 取数。

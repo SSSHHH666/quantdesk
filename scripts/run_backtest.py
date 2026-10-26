@@ -20,7 +20,24 @@
 自动降级为内置 ``MockProvider``（确定性离线示例数据，无网络依赖）。可用
 ``--provider cache|mock`` 强制指定。
 
-退出码：0 成功；2 参数/回测错误（中文提示写 stderr）。
+价格口径（合规红线）
+--------------------
+撮合/手数/资金核算一律用**不复权真实价**：``BarCache.load(adjust="none")``，
+不读 ``config.yaml`` 的 ``data.adjust``（行情页默认 hfq）。控制台与报告都会打印
+``价格口径：不复权真实价（price_adjust=none）``。
+
+报告输出（M6 P1）
+-----------------
+每次回测同时输出「同仓位被动基准」（等权买入持有、不调仓）与样本外标记：
+
+* 控制台摘要：策略收益 vs 被动收益、超额（pp）、MDD 对照、样本外标记；
+* ``runtime/exports/backtest_report_<run_id>.json`` / ``.csv``（字段见
+  :mod:`backtest.validation`）。
+
+``scripts/run_backtest.py`` 是**单区间回测**（非 walk-forward），报告固定标
+“样本外：否”，不得把单区间收益当作样本外证据。
+
+退出码：0 成功；2 参数/回测/报告错误（中文提示写 stderr）。
 """
 
 from __future__ import annotations
@@ -41,6 +58,22 @@ import pandas as pd  # noqa: E402
 
 from backtest.engine import BacktestEngine, BacktestError, BacktestResult  # noqa: E402
 from backtest.metrics import METRIC_LABELS, format_metric  # noqa: E402
+from backtest.validation import (  # noqa: E402
+    OOS_MARKER_SINGLE_INTERVAL,
+    PASSIVE_BENCHMARK_METHOD,
+    PRICE_ADJUST_NONE,
+    PRICE_CALIBER_MOCK,
+    PRICE_CALIBER_RAW,
+    PassiveBenchmark,
+    build_backtest_report,
+    compute_passive_benchmark,
+    write_backtest_report,
+)
+
+#: 回测价格口径（合规红线）：撮合/手数/资金/被动基准一律不复权真实价
+_BACKTEST_ADJUST = PRICE_ADJUST_NONE
+#: 默认报告目录（相对项目根）
+_DEFAULT_REPORT_DIR = _PROJECT_ROOT / "runtime" / "exports"
 
 #: 命令行默认展示的 KPI（顺序即输出顺序）
 _DISPLAY_METRICS: tuple[str, ...] = (
@@ -90,17 +123,22 @@ def _parse_params(text: str | None) -> dict[str, Any]:
 def _load_bars(
     symbols: list[str], start: date, end: date, provider: str
 ) -> tuple[pd.DataFrame, str]:
-    """取行情：优先本地缓存，失败降级 MockProvider（离线演示）。"""
+    """取行情：优先本地缓存，失败降级 MockProvider（离线演示）。
+
+    合规口径：本地缓存**必须**用不复权真实价（``adjust="none"``）；取不到不复权
+    行情时不做 hfq 静默回退（那会让撮合/手数失真），而是按现有逻辑降级到
+    明确标注的 Mock 演示数据（``is_mock=True`` + 控制台红色提示）。
+    """
 
     warnings: list[str] = []
     if provider in ("auto", "cache"):
         try:
             from data.cache import BarCache  # 延迟导入：数据层不可用时也能跑 mock
 
-            frame = BarCache().load(symbols, start, end, adjust="hfq")
+            frame = BarCache().load(symbols, start, end, adjust=_BACKTEST_ADJUST)
             if frame is not None and len(frame) > 0:
-                return frame, "本地 SQLite 缓存（BarCache，后复权）"
-            warnings.append("本地缓存没有数据")
+                return frame, "本地 SQLite 缓存（BarCache，不复权真实价 adjust=none）"
+            warnings.append("本地缓存没有不复权行情")
         except Exception as exc:  # noqa: BLE001 - 任何原因都降级
             if provider == "cache":
                 raise SystemExit(f"本地缓存读取失败（--provider cache）：{exc}") from exc
@@ -119,7 +157,10 @@ def _load_bars(
 def _load_benchmark(
     benchmark: str | None, start: date, end: date, provider: str
 ) -> tuple[Any, str | None]:
-    """尽力加载基准行情；失败返回 (None, 提示)，不报错。"""
+    """尽力加载基准行情；失败返回 (None, 提示)，不报错。
+
+    基准仅用于展示/计算基准收益，同样按不复权口径取数，避免与撮合口径混用。
+    """
 
     if not benchmark:
         return None, None
@@ -127,7 +168,7 @@ def _load_benchmark(
         if provider in ("auto", "cache"):
             from data.cache import BarCache
 
-            frame = BarCache().load([benchmark], start, end, adjust="hfq")
+            frame = BarCache().load([benchmark], start, end, adjust=_BACKTEST_ADJUST)
             if frame is not None and len(frame) > 0:
                 return frame, None
     except Exception:  # noqa: BLE001 - 基准缺失不阻塞回测
@@ -191,6 +232,62 @@ def _print_trades(result: BacktestResult, limit: int) -> None:
     print(view.to_string(index=False))
 
 
+def _display_path(path: Path) -> str:
+    """把绝对路径转成相对项目根的展示路径（失败时原样返回）。"""
+
+    try:
+        return str(path.relative_to(_PROJECT_ROOT)).replace("\\", "/")
+    except ValueError:
+        return str(path)
+
+
+def _print_passive_benchmark(
+    passive: PassiveBenchmark,
+    report: dict[str, Any],
+    json_path: Path,
+    csv_path: Path,
+) -> None:
+    """打印「同仓位被动基准 vs 策略」标准摘要（M6 P1 报告必含项）。"""
+
+    print("-" * 72)
+    print("同仓位被动基准（等权买入持有，期间不调仓）")
+    print("-" * 72)
+    print(f"  {'基准定义':<10}同区间 / 同初始资金 / 同标的列表 / 单票目标仓位 "
+          f"{passive.position_pct:g}%（与引擎 default_position_pct 一致）")
+    print(f"  {'买入口径':<10}期初 {passive.buy_date} 收盘价（不复权）+ "
+          f"{passive.slippage_bps:g}bp 买入滑点，整手取整；期间不调仓，剩余现金保留")
+    print(f"  {'费用口径':<10}broker_sim.FeeModel（佣金/印花/过户/规费）与撮合同源；"
+          f"期初买入费用 {passive.total_fees:,.2f} 元")
+    print(f"  {'价格口径':<10}{report['price_caliber']}")
+    print()
+    print(f"  {'被动总收益':<12}{format_metric('total_return', report['passive_total_return']):>18}")
+    print(f"  {'被动年化':<12}{format_metric('annual_return', report['passive_annual_return']):>18}")
+    print(f"  {'被动最大回撤':<12}{format_metric('max_drawdown', report['passive_max_drawdown']):>18}")
+    print(f"  {'被动夏普':<12}{format_metric('sharpe', report['passive_sharpe']):>18}")
+    print(f"  {'被动期末权益':<12}{format_metric('final_equity', report['passive_final_equity']):>18}")
+    print("-" * 72)
+    print("策略 vs 被动")
+    print("-" * 72)
+    print(f"  {'策略总收益':<12}{format_metric('total_return', report['strategy_total_return']):>18}")
+    print(f"  {'被动总收益':<12}{format_metric('total_return', report['passive_total_return']):>18}")
+    print(f"  {'超额（pp）':<12}{report['excess_return_pp']:>+15.2f}pp")
+    print(
+        f"  {'回撤对照':<12}策略 MDD {format_metric('max_drawdown', report['strategy_max_drawdown'])}"
+        f"  vs  被动 MDD {format_metric('max_drawdown', report['passive_max_drawdown'])}"
+    )
+    print(f"  {'样本外':<10}{OOS_MARKER_SINGLE_INTERVAL}")
+    print(f"  {'报告 JSON':<10}{_display_path(json_path)}")
+    print(f"  {'报告 CSV':<10}{_display_path(csv_path)}")
+    if passive.notes:
+        print("-" * 72)
+        print("被动基准说明")
+        print("-" * 72)
+        for note in passive.notes:
+            print(f"  - {note}")
+    print("-" * 72)
+    print(f"  基准定义全文：{PASSIVE_BENCHMARK_METHOD}")
+
+
 def _save_result(result: BacktestResult) -> None:
     """保存回测结果到数据库；任何失败都只提示、不改变退出码。"""
 
@@ -237,6 +334,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--save", action="store_true", help="把结果写入数据库（backtest_runs/equity/trades）")
     parser.add_argument("--run-id", default=None, help="指定回测 run_id（可复现/幂等保存用）")
     parser.add_argument("--trades", type=int, default=10, help="成交明细最多展示笔数")
+    parser.add_argument(
+        "--report-dir",
+        default=str(_DEFAULT_REPORT_DIR),
+        help="标准报告输出目录（JSON + CSV，默认 runtime/exports）",
+    )
     args = parser.parse_args(argv)
 
     start = _parse_date(args.start, name="--start")
@@ -255,6 +357,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  标的      {'、'.join(symbols)}")
     print(f"  区间      {start} ~ {end}")
     print(f"  初始资金  {args.cash:,.2f} 元")
+    print(f"  价格口径  {PRICE_CALIBER_RAW}")
     if params:
         print(f"  参数      {json.dumps(params, ensure_ascii=False)}")
 
@@ -291,6 +394,7 @@ def main(argv: list[str] | None = None) -> int:
             bars=bars,
             benchmark_bars=benchmark_bars,
             run_id=args.run_id,
+            price_adjust=_BACKTEST_ADJUST,
         )
     except BacktestError as exc:
         print(f"\n[回测失败] {exc}", file=sys.stderr)
@@ -308,6 +412,40 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  期末权益  {result.final_equity:,.2f} 元")
     _print_metrics(result)
     _print_warnings(result)
+
+    # ---- M6 P1：同仓位被动基准 + 样本外标记 + 标准报告 -------------------
+    price_caliber = PRICE_CALIBER_MOCK if getattr(result, "is_mock", False) else PRICE_CALIBER_RAW
+    try:
+        position_pct = float((result.params or {}).get("position_pct") or 10.0)
+        calendar = (
+            result.equity["trade_date"].tolist()
+            if result.equity is not None and "trade_date" in result.equity.columns
+            else None
+        )
+        passive = compute_passive_benchmark(
+            bars,
+            symbols,
+            result.start_date,
+            result.end_date,
+            initial_cash=args.cash,
+            position_pct=position_pct,
+            fee_config=result.fee_config,
+            slippage_bps=args.slippage_bps,
+            calendar=calendar,
+        )
+        report = build_backtest_report(
+            result,
+            passive,
+            price_caliber=price_caliber,
+            oos=False,
+            oos_marker=OOS_MARKER_SINGLE_INTERVAL,
+        )
+        json_path, csv_path = write_backtest_report(report, Path(args.report_dir))
+    except Exception as exc:  # noqa: BLE001 - 报告是标准输出，失败必须显式报错
+        print(f"\n[报告生成失败] {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 2
+
+    _print_passive_benchmark(passive, report, json_path, csv_path)
     _print_trades(result, max(1, args.trades))
     if args.save:
         _save_result(result)
