@@ -1,0 +1,113 @@
+# =============================================================================
+# QuantDesk 默认配置（任务 M0-01 / 契约 CF-9，键名冻结：SPEC §7）
+# 规则：
+#   1. 键名、层级、默认值必须与 SPEC §7 完全一致，任何变更须 Lead 审批（CF-9）。
+#   2. 密码/密钥绝不写入本文件：只从环境变量读取（前缀 QD_，如 QD_SMTP_PASSWORD）。
+#   3. 百分比参数以「百分数」书写（20 表示 20%），由 core/config.py 校验后交给风控使用。
+#   4. 所有金额/费率/阈值均在此配置，代码中不得硬编码（SPEC §7 规则 4）。
+#   5. 运行期数据统一落 ./runtime/（quantdesk.db、logs/、backups/、exports/，决策 S-1）。
+# =============================================================================
+
+app:
+  name: QuantDesk
+  version: "1.0.0"
+  timezone: Asia/Shanghai        # 统一本地时区（交易日/时间戳口径）
+  data_dir: ./runtime            # 运行期数据目录（DB、日志、备份、导出）
+  log_level: INFO                # DEBUG | INFO | WARNING | ERROR（日志与审计见 core/logging.py）
+
+database:
+  url: sqlite:///./runtime/quantdesk.db   # SQLite（WAL 模式由 core/db.py 开启）
+  echo: false                    # 是否打印 SQL（调试用，生产关闭）
+  backup_keep: 7                  # 自动备份保留份数（每日启动检查备份）
+
+data:
+  provider: akshare              # 主数据源：akshare | mock（离线演示用 mock）
+  fallbacks: [mock]              # 主源失败后的降级顺序（主备降级链）
+  universe: ["600519.SH", "000001.SZ", "300750.SZ"]   # 自选池（默认少量示例，UI 可编辑）
+  history_years: 5               # 首次全量拉取历史年数
+  adjust: hfq                    # 复权口径：hfq 后复权 | qfq 前复权 | none 不复权
+  request_interval_ms: 300       # akshare 请求间隔（毫秒，限流）
+  max_retries: 3                 # 单次调用失败重试次数（指数退避）
+  stale_threshold_hours: 24      # 行情过期阈值（小时），超过则风控 RK006 / 数据校验 DQ006
+
+fees:
+  commission_rate: 0.00025       # 佣金费率（万 2.5），买卖双向
+  min_commission: 5.0            # 佣金最低收费（元，股票）
+  stamp_tax_rate: 0.0005         # 印花税率（仅卖出，2023-08-28 起减半）
+  transfer_fee_rate: 0.00001     # 过户费率（买卖双向，沪深均收）
+  reg_fee_rate: 0.0000541        # 规费费率（证管 + 经手，买卖双向）
+  include_reg_fee_in_commission: false   # 规费是否合并进佣金展示
+  slippage_bps: 5                # 滑点（基点，5bp = 0.05%；买 + / 卖 -）
+
+trading:
+  account_name: 模拟账户          # 默认模拟账户名称
+  broker: paper                  # 券商适配器：paper | ccxt | qmt（未接入时会中文提示）
+  initial_cash: 100000           # 模拟账户初始资金（元）
+  min_order_amount: 1000         # 单笔最小下单金额（元），低于则风控拒绝 RK012
+  allow_market_order: false      # 是否允许市价单（MVP 默认禁止，A 股无真正市价单）
+
+risk:
+  enabled: true                  # 风控总开关（不建议关闭；关闭会写审计告警）
+  allow_auto_orders: false       # 自动交易总开关；false 时自动化订单一律 RK020 拒绝，true 才允许（需与 automation.enabled 同时为真）
+  max_position_per_symbol_pct: 20   # 单票市值占总资产上限（%）
+  max_total_position_pct: 80        # 总持仓市值占总资产上限（%，至少留 20% 现金）
+  max_daily_loss_pct: 3             # 单日亏损熔断线（%，相对当日开盘总资产）
+  max_price_deviation_pct: 2        # 限价与最新价最大偏离（%，近似价格笼子）
+  max_single_order_value_pct: 10    # 单笔委托金额占总资产上限（%，防手误）
+  max_orders_per_minute: 10         # 每分钟最多提交订单数（防循环下单）
+  min_listed_days: 60               # 上市不足 N 个交易日不交易
+  blacklist: []                     # 用户自定义黑名单（ST/退市/新股由规则自动加入）
+
+backtest:
+  default_initial_cash: 100000   # 回测默认初始资金（元）
+  benchmark: "000300.SH"         # 默认基准：沪深 300
+  price_adjust: none             # 回测价格口径：none=不复权真实价撮合/算手数（默认、推荐）；hfq=复权合成价全流程，仅研究对照（自动告警并关闭最小手数校验）
+
+automation:
+  enabled: false                 # 自动化总开关（安全默认：关闭；需用户显式开启）
+  jobs:
+    prepare: "08:50"             # 盘前：刷新日历/数据、T+1 日初结算、熔断基线
+    scan: "10:00"                # 盘中：策略扫描 → 信号 → 风控 → 订单
+    summarize: "15:30"           # 盘后：当日盈亏、权益快照、日报、通知
+
+notify:
+  enabled: false                 # 通知总开关（关闭时只写日志/通知表记 DISABLED）
+  channels:
+    desktop: true                # 桌面通知（零配置，本机可用）
+    email: false                 # 邮件通知（需 SMTP 配置）
+    webhook: false               # Webhook 通知（企业微信/飞书/钉钉通用 JSON）
+  email:
+    smtp_host: ""
+    smtp_port: 465
+    username: ""
+    password_env: QD_SMTP_PASSWORD   # 密码只从环境变量读取，禁止写本文件
+    to: ""
+  webhook:
+    url: ""
+
+# =============================================================================
+# Phase 2 扩展（F10–F13 / M6，SPEC v1.4 §7；CF-9 扩展已由 Lead 批准 2026-10-25）
+# 说明：MVP 阶段忽略这些键，但配置校验必须通过；默认全部关闭（安全默认）。
+# =============================================================================
+recommend:
+  enabled: false                 # 推荐榜单总开关（Phase 2 默认关闭）
+  far_top_n: 20                  # 远期榜条数
+  near_top_n: 20                 # 近期榜条数
+  far_refresh_days: 20           # 远期榜刷新周期（交易日，约月度）
+  near_refresh: daily            # 近期榜刷新频率（daily）
+  min_history_days: 250          # 最短历史（不足不推荐）
+  min_listed_days: 60            # 最短上市交易日（不足不推荐）
+  exclude_st: true               # 是否剔除 ST/退市/新股
+  radar_enabled: true            # 异动雷达开关
+  radar_volume_ratio: 2.0        # 量比阈值
+  radar_turnover_pct: 5.0        # 换手率阈值（%）
+  radar_amplitude_pct: 7.0       # 振幅阈值（%）
+  radar_dedup_days: 3            # 同标的同类型去重天数
+
+research:
+  ml_enabled: false              # ML 排序（需安装 scikit-learn；CPU-only；缺失时降级并提示）
+  walk_forward_folds: 3          # 样本外折数（≥3）
+  purge_days: 5                  # 训练/验证之间的交易日 purge
+  embargo_days: 1                # embargo 交易日
+  label_horizon_days: 5          # ML 标签未来收益天数
+  param_robustness_pct: 20       # 参数稳健性邻域（±%）
