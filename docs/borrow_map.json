@@ -1,0 +1,422 @@
+[
+  {
+    "module": "core",
+    "source_repo": "vnpy/vnpy",
+    "source_path": "vnpy/event/engine.py",
+    "url": "https://github.com/vnpy/vnpy/blob/master/vnpy/event/engine.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "Event/EventEngine：主题注册/注销+队列+1s定时器线程+通用handler，抽成 core/events.py，事件名改点号主题(market.bar/signal/order.filled/risk.blocked/job.*)，handler 内 try/except 互不干扰",
+    "priority": 1
+  },
+  {
+    "module": "trading",
+    "source_repo": "vnpy/vnpy",
+    "source_path": "vnpy/trader/gateway.py",
+    "url": "https://github.com/vnpy/vnpy/blob/master/vnpy/trader/gateway.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "BaseGateway 方法契约直接对齐 BrokerAdapter：connect/subscribe/send_order/cancel_order/query_account/query_position/query_history/close；on_tick/on_order/on_trade 改为向事件总线 publish",
+    "priority": 1
+  },
+  {
+    "module": "core/trading",
+    "source_repo": "vnpy/vnpy",
+    "source_path": "vnpy/trader/engine.py",
+    "url": "https://github.com/vnpy/vnpy/blob/master/vnpy/trader/engine.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "借 MainEngine.add_engine/add_gateway/add_app 装配模式做 bootstrap；OmsEngine 的订单/成交/持仓/账户内存态+get_all_xxx 作为 order_manager/portfolio 的样板，UI 只读内存态",
+    "priority": 1
+  },
+  {
+    "module": "backtest",
+    "source_repo": "vnpy/vnpy",
+    "source_path": "vnpy/trader/optimize.py",
+    "url": "https://github.com/vnpy/vnpy/blob/master/vnpy/trader/optimize.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "OptimizationSetting.add_parameter/generate_settings 做参数网格笛卡尔积；run_bf_optimization 的多进程+进度回调作为第一版优化器，遗传算法留到二期",
+    "priority": 2
+  },
+  {
+    "module": "core",
+    "source_repo": "nautechsystems/nautilus_trader",
+    "source_path": "crates/common/src/msgbus/matching.rs",
+    "url": "https://github.com/nautechsystems/nautilus_trader/blob/develop/crates/common/src/msgbus/matching.rs",
+    "license": "LGPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄设计：订阅用通配符 pattern(order.*)，先判无通配走 dict 精确查，再贪婪双指针匹配；Python 约30行实现 subscribe(pattern)，不要用 startswith 前缀匹配",
+    "priority": 2
+  },
+  {
+    "module": "core/trading",
+    "source_repo": "nautechsystems/nautilus_trader",
+    "source_path": "docs/concepts/architecture.md",
+    "url": "https://github.com/nautechsystems/nautilus_trader/blob/develop/docs/concepts/architecture.md",
+    "license": "LGPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄纪律：状态先写 Cache 成功再 publish 事件（cache-then-publish），回测与实盘同一顺序，避免 handler 读到旧 state",
+    "priority": 1
+  },
+  {
+    "module": "trading",
+    "source_repo": "nautechsystems/nautilus_trader",
+    "source_path": "docs/concepts/adapters.md",
+    "url": "https://github.com/nautechsystems/nautilus_trader/blob/develop/docs/concepts/adapters.md",
+    "license": "LGPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄分层：每个 broker 适配器只做 Domain→Venue、Venue→Domain、错误码映射三件事，统一 dataclass 放 core/models.py",
+    "priority": 2
+  },
+  {
+    "module": "strategy/trading",
+    "source_repo": "Lumiwealth/lumibot",
+    "source_path": "lumibot/strategies/strategy.py",
+    "url": "https://github.com/Lumiwealth/lumibot/blob/dev/lumibot/strategies/strategy.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄解耦：策略侧只有 create_order/submit_order/get_positions/get_portfolio_value 四个方法，broker 由 config 注入，回测/模拟/实盘换 broker 不改策略代码",
+    "priority": 1
+  },
+  {
+    "module": "trading",
+    "source_repo": "Lumiwealth/lumibot",
+    "source_path": "lumibot/brokers/broker.py",
+    "url": "https://github.com/Lumiwealth/lumibot/blob/dev/lumibot/brokers/broker.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄抽象基类的最小方法集：_submit_order/cancel_order/_get_balances_at_broker/_pull_positions/_pull_broker_order + is_backtesting_broker 标志，期权/streams 实现不要",
+    "priority": 1
+  },
+  {
+    "module": "trading",
+    "source_repo": "Lumiwealth/lumibot",
+    "source_path": "lumibot/strategies/_strategy.py",
+    "url": "https://github.com/Lumiwealth/lumibot/blob/dev/lumibot/strategies/_strategy.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄闸门思想：_validate_order 挂在唯一 submit 路径内校验失败即 return False；扩成 RiskGate.check(order,account,positions,market)->RiskDecision，唯一入口 OrderService.place，手动/自动下单都走这里",
+    "priority": 1
+  },
+  {
+    "module": "strategy",
+    "source_repo": "freqtrade/freqtrade",
+    "source_path": "freqtrade/strategy/interface.py",
+    "url": "https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/strategy/interface.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄钩子清单：on_bar 之外提供可选钩子 confirm_signal/custom_stoploss/adjust_position/custom_stake_amount，默认空实现，引擎统一按生命周期调用",
+    "priority": 2
+  },
+  {
+    "module": "data",
+    "source_repo": "openbq-org/OpenBB",
+    "source_path": "openbb_platform/core/openbb_core/provider/abstract/provider.py",
+    "url": "https://github.com/openbq-org/OpenBB/blob/develop/openbb_platform/core/openbb_core/provider/abstract/provider.py",
+    "license": "NOASSERTION (README 称 Apache-2.0，未核实)",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄结构：provider 类声明 name/description/credentials/能力字典，注册表 dict[name]=provider，工厂按配置顺序实例化生成降级链",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "openbq-org/OpenBB",
+    "source_path": "openbb_platform/core/openbb_core/provider/registry.py",
+    "url": "https://github.com/openbq-org/OpenBB/blob/develop/openbb_platform/core/openbb_core/provider/registry.py",
+    "license": "NOASSERTION (README 称 Apache-2.0，未核实)",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄 Registry.include_provider/providers 的极简注册表形态，避免写一堆 if-elif 选源；加载失败要 warning 而不是整进程崩",
+    "priority": 2
+  },
+  {
+    "module": "data",
+    "source_repo": "openbq-org/OpenBB",
+    "source_path": "openbb_platform/core/openbb_core/provider/abstract/fetcher.py",
+    "url": "https://github.com/openbq-org/OpenBB/blob/develop/openbb_platform/core/openbb_core/provider/abstract/fetcher.py",
+    "license": "NOASSERTION (README 称 Apache-2.0，未核实)",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄三段式：每个数据接口拆 transform_query(参数校验)/extract_data(取数含重试)/transform_data(标准化成 [date,symbol,ohlcv])，基类串起来并记 provenance",
+    "priority": 1
+  },
+  {
+    "module": "data/ui",
+    "source_repo": "openbq-org/OpenBB",
+    "source_path": "openbb_platform/core/openbb_core/provider/registry_map.py",
+    "url": "https://github.com/openbq-org/OpenBB/blob/develop/openbb_platform/core/openbb_core/provider/registry_map.py",
+    "license": "NOASSERTION (README 称 Apache-2.0，未核实)",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄产物形态：生成 {provider:{available,credentials}} 快照，UI 设置页渲染每个数据源状态（可用/缺key/降级中）",
+    "priority": 3
+  },
+  {
+    "module": "backtest",
+    "source_repo": "freqtrade/freqtrade",
+    "source_path": "freqtrade/optimize/analysis/lookahead.py",
+    "url": "https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/optimize/analysis/lookahead.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄方法：全量跑一遍拿交易/信号，再对每根 bar 用截断数据重跑比对，不一致即报未来函数；抽样近60个交易日控制 O(n^2) 成本",
+    "priority": 1
+  },
+  {
+    "module": "backtest",
+    "source_repo": "freqtrade/freqtrade",
+    "source_path": "freqtrade/optimize/hyperopt_loss/hyperopt_loss_interface.py",
+    "url": "https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/optimize/hyperopt_loss/hyperopt_loss_interface.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄接口形状：Objective(metrics)->score 纯函数+注册表(sharpe/calmar/max_drawdown/trade_count)，优化器与目标解耦",
+    "priority": 2
+  },
+  {
+    "module": "backtest",
+    "source_repo": "freqtrade/freqtrade",
+    "source_path": "freqtrade/optimize/hyperopt/hyperopt_interface.py",
+    "url": "https://github.com/freqtrade/freqtrade/blob/develop/freqtrade/optimize/hyperopt/hyperopt_interface.py",
+    "license": "GPL-3.0",
+    "reuse_policy": "rewrite",
+    "what_to_adapt": "只抄可插拔参数空间思路（stoploss/roi/trailing 各自声明维度）；不抄 optuna 集成，第一版手写网格/随机搜索",
+    "priority": 3
+  },
+  {
+    "module": "strategy/backtest",
+    "source_repo": "pmorissette/bt",
+    "source_path": "bt/algos.py",
+    "url": "https://github.com/pmorissette/bt/blob/master/bt/algos.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用类名与语义：SelectAll/SelectN/WeighEqually/WeighTarget/Rebalance/RunMonthly，多因子策略写成 AlgoStack([SelectTopN,WeighScore,Rebalance]) 的 pandas 版",
+    "priority": 2
+  },
+  {
+    "module": "backtest",
+    "source_repo": "pmorissette/bt",
+    "source_path": "bt/backtest.py",
+    "url": "https://github.com/pmorissette/bt/blob/master/bt/backtest.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 Backtest 的目标权重→持仓计算与成本模型挂钩方式，落成 broker_sim 的手续费/滑点类，再叠加 A 股 T+1/涨跌停",
+    "priority": 2
+  },
+  {
+    "module": "backtest",
+    "source_repo": "pmorissette/bt",
+    "source_path": "bt/core.py",
+    "url": "https://github.com/pmorissette/bt/blob/master/bt/core.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 CostModel/SqrtCostModel/AlmgrenChrissCostModel 的接口签名（volume/volatility 入参），保持可替换",
+    "priority": 3
+  },
+  {
+    "module": "strategy",
+    "source_repo": "microsoft/qlib",
+    "source_path": "qlib/contrib/data/loader.py",
+    "url": "https://github.com/microsoft/qlib/blob/main/qlib/contrib/data/loader.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 Alpha158DL.get_feature_config 的因子清单与 windows=[5,10,20,30,60]（ROC/MA/STD/BETA/RSQR/RESI/MAX/MIN/QTLU/QTLD/RANK/RSV/IMAX/IMIN + price/volume ref），落成 YAML 配置+pandas 实现；不搬 qlib 表达式 DSL 与数据后端",
+    "priority": 1
+  },
+  {
+    "module": "data/strategy",
+    "source_repo": "microsoft/qlib",
+    "source_path": "qlib/data/dataset/handler.py",
+    "url": "https://github.com/microsoft/qlib/blob/main/qlib/data/dataset/handler.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 DataHandlerLP 的 setup_data/fit/process_data/fetch 四段式与 learn/infer 两组 processor 约定：cache 只存 raw，归一化在策略侧 fit 后 transform，避免统计量写死进缓存导致信息泄露",
+    "priority": 2
+  },
+  {
+    "module": "strategy",
+    "source_repo": "HKUDS/Vibe-Trading",
+    "source_path": "agent/src/factors/registry.py",
+    "url": "https://github.com/HKUDS/Vibe-Trading/blob/main/agent/src/factors/registry.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用因子 Zoo 注册表：一个因子=一个文件+__alpha_meta__(id/theme/formula/columns_required/min_warmup_bars/universe/frequency)，Registry._scan 启动扫描、compute(id,panel) 统一入口、health()/export_manifest() 自检",
+    "priority": 1
+  },
+  {
+    "module": "strategy",
+    "source_repo": "HKUDS/Vibe-Trading",
+    "source_path": "agent/src/factors/base.py",
+    "url": "https://github.com/HKUDS/Vibe-Trading/blob/main/agent/src/factors/base.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用算子面：rank/zscore/scale/ts_rank/ts_corr/ts_cov/ts_argmax/ts_argmin/delta/decay_linear/signed_power/safe_div，全部 DataFrame 向量化+safe_div 除零保护，是抄 GTJA191/Alpha101 的前提",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "HKUDS/Vibe-Trading",
+    "source_path": "agent/backtest/loaders/_symbol_utils.py",
+    "url": "https://github.com/HKUDS/Vibe-Trading/blob/main/agent/backtest/loaders/_symbol_utils.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 A 股代码归一化：6位码+后缀 .SH/.SZ 校验、ETF/LOF 前缀集 {15,16,50,51,52,56,58}；内部统一 600519.SH/000001.SZ，指数歧义码走白名单",
+    "priority": 2
+  },
+  {
+    "module": "strategy",
+    "source_repo": "TA-Lib/ta-lib-python",
+    "source_path": "talib/abstract.py",
+    "url": "https://github.com/TA-Lib/ta-lib-python/blob/master/talib/abstract.py",
+    "license": "BSD-2-Clause",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用指标门面手法：遍历函数名动态 globals()[name]=Function(name)，使 TA-Lib 缺失时可整体替换为 pandas 同名实现而调用方零改动",
+    "priority": 1
+  },
+  {
+    "module": "core/strategy",
+    "source_repo": "TA-Lib/ta-lib-python",
+    "source_path": "talib/stream.py",
+    "url": "https://github.com/TA-Lib/ta-lib-python/blob/master/talib/stream.py",
+    "license": "BSD-2-Clause",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用流式语义：update(bar)/peek(forming)/copy()/advance()/out_range，给 MA/RSI/MACD 写 pandas 增量版；历史不足返回未就绪而非抛错",
+    "priority": 2
+  },
+  {
+    "module": "backtest",
+    "source_repo": "ranaroussi/quantstats",
+    "source_path": "quantstats/stats.py",
+    "url": "https://github.com/ranaroussi/quantstats/blob/main/quantstats/stats.py",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用指标公式与默认口径(periods=252/rf=0/compounded=True)：sharpe/smart_sharpe/sortino/calmar/max_drawdown/cagr/win_rate/profit_factor/VaR/CVaR/probabilistic_sharpe_ratio；先统一 period-based 收益序列口径",
+    "priority": 1
+  },
+  {
+    "module": "ui/backtest",
+    "source_repo": "ranaroussi/quantstats",
+    "source_path": "quantstats/reports.py",
+    "url": "https://github.com/ranaroussi/quantstats/blob/main/quantstats/reports.py",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 reports.html(returns,benchmark,rf,title,output) 生成 tear sheet；UI 加下载报告按钮直接调它，不自写 HTML 模板",
+    "priority": 2
+  },
+  {
+    "module": "backtest",
+    "source_repo": "stefan-jansen/machine-learning-for-trading",
+    "source_path": "06_strategy_definition/02_cv_foundations.py",
+    "url": "https://github.com/stefan-jansen/machine-learning-for-trading/blob/main/06_strategy_definition/02_cv_foundations.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 walk-forward 切分参数与纪律：WalkForwardCV(n_splits=5,test_size=252,expanding=True,label_horizon=21)、purge 按交易日而非自然日、加 embargo；输出 OOS 曲线+每折指标",
+    "priority": 1
+  },
+  {
+    "module": "backtest/ui",
+    "source_repo": "stefan-jansen/machine-learning-for-trading",
+    "source_path": "16_strategy_simulation/12_dsr_validation.py",
+    "url": "https://github.com/stefan-jansen/machine-learning-for-trading/blob/main/16_strategy_simulation/12_dsr_validation.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用脚本内自实现的 deflated_sharpe_ratio/probabilistic_sharpe_ratio/compute_pbo(CSCV)，不引入 ml4t.diagnostic 依赖；UI 回测页展示 DSR 概率+PBO% 红黄绿灯",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "akfamily/akshare",
+    "source_path": "akshare/data/interfaces.json",
+    "url": "https://github.com/akfamily/akshare/blob/main/akshare/data/interfaces.json",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用离线接口注册表的字段结构(name/module/category/params/outputs/example)，做 data/registry.py 的接口清单供 UI 数据浏览器与未来 LLM 选接口；不分发其 json 原件",
+    "priority": 2
+  },
+  {
+    "module": "data",
+    "source_repo": "akfamily/akshare",
+    "source_path": "akshare/request.py",
+    "url": "https://github.com/akfamily/akshare/blob/main/akshare/request.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用指数退避重试+错误分类(RateLimitError/NetworkError/DataParsingError)，在 AkshareProvider 包装层统一转 DataFetchError(source,reason,retryable)，让降级链判断换源还是报错",
+    "priority": 2
+  },
+  {
+    "module": "data",
+    "source_repo": "simonlin1212/a-stock-data",
+    "source_path": "SKILL.md (章节：数据源优先级 & 东财防封 / 备用源速查 & 降级策略)",
+    "url": "https://github.com/simonlin1212/a-stock-data/blob/main/SKILL.md",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用主备源降级+防封限流：每类数据声明有序源列表+每源独立限流器(最小间隔+抖动，参考 em_get 1s 串行)+失败自动切源并记 fallback；绝不并发猛拉（其封禁令案例：10线程1小时4.5万请求被封IP）",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "simonlin1212/a-stock-data",
+    "source_path": "SKILL.md (章节：§1.2 成交量对账口径 / V3.10.1 更正)",
+    "url": "https://github.com/simonlin1212/a-stock-data/blob/main/SKILL.md",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用数据口径校验清单：volume 单位(手vs股/科创板特殊)、复权方式(qfq/hfq/不复权不可混)、涨跌停价与昨收一致性；不一致写 warnings 并阻断入库，不静默覆盖",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "simonlin1212/a-stock-data",
+    "source_path": "SKILL.md (章节：Ticker 格式归一化 / 市场前缀规则)",
+    "url": "https://github.com/simonlin1212/a-stock-data/blob/main/SKILL.md",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用 ticker 归一化防呆：整串锚定正则(禁用 re.search 捞6位)、市场前缀/后缀二选一、000001 等歧义码强制带市场标识",
+    "priority": 2
+  },
+  {
+    "module": "automation",
+    "source_repo": "ZhuLinsen/daily_stock_analysis",
+    "source_path": "src/scheduler.py",
+    "url": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/src/scheduler.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用三件套：set_daily_task(多时间点)/add_background_task(≥30s轮询)/GracefulShutdown(signal handler)；我们用 APScheduler 实现同等能力，保留配置热更新后重排 job 与任务异常不杀主循环",
+    "priority": 2
+  },
+  {
+    "module": "automation",
+    "source_repo": "ZhuLinsen/daily_stock_analysis",
+    "source_path": "src/notification_routing.py",
+    "url": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/src/notification_routing.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用路由表结构：route_type(report/alert/system_error)->(env_key,config_attr)+渠道白名单，未配置渠道静默跳过并输出能力清单供 UI 展示",
+    "priority": 1
+  },
+  {
+    "module": "automation",
+    "source_repo": "ZhuLinsen/daily_stock_analysis",
+    "source_path": "src/notification_sender/__init__.py",
+    "url": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/src/notification_sender/__init__.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用每渠道一个 sender 类的插件组织方式（统一 send(title,content)->bool 接口），notify.py 按路由分发；先实现桌面/邮件/Webhook 三种",
+    "priority": 2
+  },
+  {
+    "module": "ui",
+    "source_repo": "ZhuLinsen/daily_stock_analysis",
+    "source_path": "src/schemas/report_schema.py",
+    "url": "https://github.com/ZhuLinsen/daily_stock_analysis/blob/main/src/schemas/report_schema.py",
+    "license": "MIT",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用决策看板字段契约：CoreConclusion/BattlePlan(sniper_points)/DataPerspective(trend/price/volume/chip)/PhaseDecision/SignalAttribution，做成前后端共用的 pydantic schema",
+    "priority": 1
+  },
+  {
+    "module": "data",
+    "source_repo": "simonlin1212/a-stock-data",
+    "source_path": "tests/test_v310_sources.py",
+    "url": "https://github.com/simonlin1212/a-stock-data/blob/main/tests/test_v310_sources.py",
+    "license": "Apache-2.0",
+    "reuse_policy": "reuse",
+    "what_to_adapt": "复用端点的离线回归测试组织：按数据源/版本分文件、每端点断言字段存在/单位/最少条数、网络全 mock，断网可跑；数据源改版只改对应文件",
+    "priority": 3
+  }
+]
