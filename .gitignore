@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.pytest-of-*/
+venv/
+.venv/
+
+# 运行期数据（不入库）
+runtime/
+*.db
+*.db-wal
+*.db-shm
+*.log
+*.bak
+screen_progress.log
+start_tmp*.log
+h?artbeat.log
+
+# 临时目录
+tmp*/
+.tmp_*/
+.trun*/
+.trun?*/
+
+# 编辑器/系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 敏感信息（绝不提交）
+.env
+*.secret
+github_token*
