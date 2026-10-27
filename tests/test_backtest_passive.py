@@ -60,9 +60,15 @@ FIXED_GENERATED_AT = "2026-10-26T00:00:00+08:00"
 
 @pytest.fixture(scope="module")
 def real_bars() -> pd.DataFrame:
-    """真实 akshare 不复权行情切片（3 标的 × 2025 年）。"""
+    """真实 akshare 不复权行情切片（3 标的 × 2025 年）。
 
-    assert BARS_CSV.exists(), f"缺少真实行情文件：{BARS_CSV}"
+    该文件位于 ``runtime/``（按 ``.gitignore`` 不入库）。干净克隆（未构建数据）时
+    这些用例应 **skip** 而不是 error——用 ``scripts/build_universe_m6.py`` 或
+    ``scripts/fetch_data.py`` 构建数据后即可自动启用。
+    """
+
+    if not BARS_CSV.exists():
+        pytest.skip(f"缺少真实行情文件（runtime/ 不入库，先构建数据）：{BARS_CSV}")
     frame = pd.read_csv(BARS_CSV, dtype={"symbol": str})
     assert set(frame["source"].dropna().unique()) == {"akshare"}, "行情 source 必须全为 akshare"
     frame["date"] = pd.to_datetime(frame["date"]).dt.date

@@ -303,3 +303,44 @@ cd C:\Users\shanghao\Documents\deepseek-harness\default-workspace\quantdesk
 ---
 
 *报告生成：2026-10-27 · QuantDesk v2.0.0 · verify-engineer（§8 为 Lead 发布前复跑补充）*
+
+---
+
+## 9. 发布后干净源码复核（v2.0.0 → v2.0.1）
+
+> 目的：验证从 GitHub 下载的**发布 tarball 在干净目录**（无 `runtime/`、无本地数据库）中能否跑通全量测试，并记录 v2.0.0 → v2.0.1 的修复闭环。
+> 背景：`runtime/` 按 `.gitignore` 不入库，部分测试依赖 `runtime/short_term/bars_*.csv` 等**运行期数据**，干净克隆下这些用例应 skip 而非 error。
+> 本节为 v2.0.0 发布后的补充复核记录（追加于 v2.0.1 补丁发布），不改变 v2.0.0 的验证结论。
+
+### 9.1 v2.0.0 tarball（干净目录，未构建数据）
+
+| 项 | 结果 |
+| --- | --- |
+| 操作 | 从 GitHub 下载 v2.0.0 发布 tarball，解压到干净目录后运行全量测试 |
+| 结果 | **383 passed / 17 skipped / 5 errors** |
+| errors 位置 | **全部**在 `tests/test_backtest_passive.py` |
+| 原因 | 该文件 module 级 fixture `real_bars` 对运行期数据 `runtime/short_term/bars_50.csv` 使用 `assert`；干净克隆缺该文件（`runtime/` 不入库）→ fixture 抛 `AssertionError` → 5 个用例 **error** 而非 skip |
+| 判定 | **测试健壮性缺陷**：不影响已构建数据的本地/用户环境（405 passed / 60 deselected），也不影响 v2.0.0 的功能、数据与 M6 研究结论 |
+
+### 9.2 修复（v2.0.1）
+
+- `tests/test_backtest_passive.py`：module 级 fixture `real_bars` 在 `bars_50.csv` 缺失时改为 **`pytest.skip(...)`**（数据构建后自动启用），与项目其余依赖运行期数据的用例行为一致。
+- **不改生产代码**：`strategy/`、`backtest/`、`trading/`、`automation/`、`ui/` 均未改动；不改其他测试。
+- 版本号统一为 `2.0.1`（`VERSION` / `config.yaml` / `core/config.py` / `core/__init__.py` / UI meta 兜底 / `docs/SPEC.md` 配置示例）。
+- 已发布的 `v2.0.0` tag **不移动、不删除**；v2.0.1 以新 tag 发布。
+
+### 9.3 修复后干净目录复核（Lead 实测，已填入）
+
+### 9.3 修复后干净目录复核（Lead 实测）
+
+<!-- CLEAN_RESULT -->
+| 项 | 结果 |
+| --- | --- |
+| 复核方式 | 只复制**受版本控制的项目文件**（排除 `runtime/`、`.venv/`、缓存），模拟干净克隆；再运行全量测试 |
+| 修复后结果（无运行期数据） | **383 passed / 22 skipped / 60 deselected / 0 failed / 0 error**，退出码 0（35.17s） |
+| 对照修复前 | 383 passed / 17 skipped / 5 errors → 5 个 **error 变为 skip**，其余用例结果不变 |
+| 数据就绪环境（本项目工作区） | **405 passed / 60 deselected / 0 failed**（57.00s） |
+| 结论 | **干净克隆可跑通**：缺失运行期数据的用例按 skip 处理；构建数据后自动变为全量 405 passed；无 error |
+
+> 复核命令（用户本机，非沙箱）：`python -m pytest tests -q`（干净克隆直接可用；本项目工作区含数据时为 405 passed）。
+> 本沙箱环境使用 `runtime/_run_pytest.py` 包装器规避临时目录权限问题；该包装器不入库，仅影响测试临时目录 mode，不影响被测代码。

@@ -32,7 +32,7 @@
 
 from __future__ import annotations
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 from .models import *  # noqa: F401,F403  （领域模型/ORM/枚举/原因码）
 from .models import __all__ as _MODEL_EXPORTS

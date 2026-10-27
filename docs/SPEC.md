@@ -674,7 +674,7 @@ class ScreenService:
 ```yaml
 app:
   name: QuantDesk
-  version: "2.0.0"
+  version: "2.0.1"
   timezone: Asia/Shanghai
   data_dir: ./runtime
   log_level: INFO

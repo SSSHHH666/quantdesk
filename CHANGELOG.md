@@ -8,6 +8,28 @@
 
 - 暂无。
 
+## [2.0.1] - 2026-10-27
+
+**补丁主题**：修复**干净克隆**（从 GitHub 下载发布 tarball、未构建 `runtime/` 数据）下 `tests/test_backtest_passive.py` 因缺数据而报 error 的测试健壮性问题。不涉及生产代码，不改变任何策略/交易/研究结论，M6 负结果不变。
+
+### Fixed
+
+- **干净克隆测试健壮性（`tests/test_backtest_passive.py`）**：module 级 fixture `real_bars` 原先对运行期数据 `runtime/short_term/bars_50.csv` 使用 `assert`；`runtime/` 按 `.gitignore` 不入库，干净克隆下相关用例直接 **error**。现改为**数据缺失时 `pytest.skip(...)`**（构建数据后自动启用），与其余依赖运行期数据的用例行为一致。
+
+### Changed
+
+- **版本号**：`VERSION`、`config.yaml`、`core/config.py`、`core/__init__.py`、UI meta 兜底值、`docs/SPEC.md` 配置示例统一为 `2.0.1`（仅字符串常量，无逻辑变更）。
+- 已发布的 `v2.0.0` tag **不移动、不删除**；本补丁以新提交/新 tag `v2.0.1` 发布。
+
+### 验证
+
+- **v2.0.0 tarball 干净目录（修复前）**：`383 passed / 17 skipped / 5 errors`，errors 全部在 `tests/test_backtest_passive.py`（缺 `runtime/` 数据）。
+- **修复后 main 干净目录**：全量收集 **405 项、0 error**（依赖运行期数据的用例按 `skip` 处理）；最终数字见 [`docs/RELEASE_VERIFICATION_v2.0.0.md`](docs/RELEASE_VERIFICATION_v2.0.0.md) §9 复核记录。
+
+### Security / Compliance
+
+- M6 研究结论不变（**无可执行短线选股边际**，不接入推荐/自动化，UI 维持研究阶段）；不承诺收益（UBA）。
+
 ## [2.0.0] - 2026-10-27
 
 **主题**：Phase 2（M6「策略研究增值」）研究框架并入主仓，并把仓库正式版本化为 **v2.0.0**。
@@ -83,5 +105,6 @@ MVP（M0–M5）交付基线（历史摘要，非本次发布新增）：
 
 | 版本 | 日期 | 定位 |
 |---|---|---|
+| 2.0.1 | 2026-10-27 | 补丁：干净克隆（未构建 runtime/ 数据）下测试 error → skip；仅测试健壮性 + 版本号，无 API/数据/研究结论变化 |
 | 2.0.0 | 2026-10-27 | Phase 2（M6）研究框架并入 + 正式版本化；M6 结论为负结果（无可执行短线选股边际） |
 | 1.0.0 | 2026-10-26 | MVP（M0–M5）交付基线（历史摘要） |

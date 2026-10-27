@@ -2,12 +2,12 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-ff4b4b)
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.1-blue)
 ![Tests](https://img.shields.io/badge/tests-405%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 > 本地运行 · 单用户 · 日频为主 · 个人研究用途
-> 当前阶段：**v2.0.0 正式发布（2026-10-27）**——MVP（M0–M5）+ Phase 2（M6 研究阶段）已完成；M6 结论为负结果（**无可执行短线选股边际**），见 §4.1。最后更新：2026-10-27 · 文档版本 v2.0（变更记录见 §8）
+> 当前阶段：**v2.0.1 补丁发布（2026-10-27）**——v2.0.0 正式版（MVP M0–M5 + Phase 2 M6 研究阶段）已于同日发布；M6 结论为负结果（**无可执行短线选股边际**），见 §4.1。最后更新：2026-10-27 · 文档版本 v2.0.1（变更记录见 §8；补丁说明见 [docs/RELEASE_NOTES_v2.0.1.md](docs/RELEASE_NOTES_v2.0.1.md)）
 
 ---
 
@@ -238,7 +238,7 @@ quantdesk/
 
 ## 4. 当前进度
 
-**总体：M0–M5 MVP 与 M6（Phase 2 策略研究）均已完成；v2.0.0 于 2026-10-27 发布。** M6 结论为负结果：**无可执行短线选股边际**，不接入推荐/自动化，UI 维持「研究阶段」（见 §4.1 与 [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md)）。
+**总体：M0–M5 MVP 与 M6（Phase 2 策略研究）均已完成；v2.0.0 于 2026-10-27 发布，同日发布 v2.0.1 补丁（干净克隆测试健壮性）。** M6 结论为负结果：**无可执行短线选股边际**，不接入推荐/自动化，UI 维持「研究阶段」（见 §4.1 与 [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md)）。
 
 | 里程碑 | 状态 | 内容摘要 |
 |---|---|---|
@@ -269,13 +269,13 @@ quantdesk/
 
 > 数字来源：`docs/M6_RESEARCH_REPORT.md` §0/§7 与 `docs/M6_QA_AUDIT.md` §12；四路独立证据（建模自查 / QA 审计 / backtest-engineer 复核 / Lead 自算）结论一致。研究结论为负结果，**不得**据此宣称任何策略「有效/可跟单」。
 
-### 4.2 版本与文档（v2.0 新增）
+### 4.2 版本与文档（v2.0 新增；v2.0.1 更新）
 
-- 版本号：根目录 [`VERSION`](VERSION) = `2.0.0`；`config.yaml`、`core/config.py`、`core/__init__.py` 与 UI meta 兜底值同步为 `2.0.0`。
-- 变更日志：[`CHANGELOG.md`](CHANGELOG.md)（[2.0.0] 与 [1.0.0] 历史摘要）。
-- 发布说明：[`docs/RELEASE_NOTES_v2.0.0.md`](docs/RELEASE_NOTES_v2.0.0.md)（亮点 / M6 结论 / 验证证据 / 升级 / 已知问题 / 复现 / 免责）。
+- 版本号：根目录 [`VERSION`](VERSION) = `2.0.1`；`config.yaml`、`core/config.py`、`core/__init__.py` 与 UI meta 兜底值同步为 `2.0.1`。
+- 变更日志：[`CHANGELOG.md`](CHANGELOG.md)（[2.0.1] 补丁、[2.0.0] 大版本、[1.0.0] 历史摘要）。
+- 发布说明：[`docs/RELEASE_NOTES_v2.0.1.md`](docs/RELEASE_NOTES_v2.0.1.md)（补丁：干净克隆测试健壮性）· [`docs/RELEASE_NOTES_v2.0.0.md`](docs/RELEASE_NOTES_v2.0.0.md)（v2.0.0 亮点 / M6 结论 / 验证证据 / 升级 / 已知问题 / 复现 / 免责）。
 - M6 并入说明：[`docs/M6_INTEGRATION.md`](docs/M6_INTEGRATION.md)。
-- 发布以 GitHub tag `v2.0.0` 与 Release 为准；验证报告见 `docs/RELEASE_VERIFICATION_v2.0.0.md`。
+- 发布以 GitHub tag `v2.0.1` 与 Release 为准（`v2.0.0` 已发布、不移动/不删除）；验证报告见 [`docs/RELEASE_VERIFICATION_v2.0.0.md`](docs/RELEASE_VERIFICATION_v2.0.0.md)（§9 为 v2.0.0 → v2.0.1 干净源码复核）。
 
 M0–M5 阶段进展历史快照（2026-10-25/26，保留）：
 
@@ -417,7 +417,7 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 4. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 架构解释（分层/数据流/失败降级/扩展点），**不覆盖契约**
 5. [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/DOC_INDEX.md](docs/DOC_INDEX.md) · [docs/GLOSSARY.md](docs/GLOSSARY.md) — 计划、索引、术语（解释性）
 6. [docs/BORROW_MAP.md](docs/BORROW_MAP.md) · [docs/borrow_map.json](docs/borrow_map.json) — 借鉴来源与许可判定（设计参考）
-7. [CHANGELOG.md](CHANGELOG.md) · [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) — 版本与发布记录（发布历史只增不删）
+7. [CHANGELOG.md](CHANGELOG.md) · [docs/RELEASE_NOTES_v2.0.1.md](docs/RELEASE_NOTES_v2.0.1.md) · [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) — 版本与发布记录（发布历史只增不删；当前 v2.0.1）
 
 **全部文档一览**：
 
@@ -437,9 +437,10 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) | 第三方依赖与借鉴代码的许可登记、保留声明 | 合规检查 |
 | [requirements.txt](requirements.txt) | 依赖清单与版本区间 | 装依赖 |
 | [config.yaml](config.yaml) | 默认配置（键名已冻结） | 调参数 |
-| [CHANGELOG.md](CHANGELOG.md) | 版本变更日志（Keep a Changelog + SemVer）：[2.0.0] 与 [1.0.0] 历史摘要 | 查版本变化 / 发版时 |
-| [VERSION](VERSION) | 当前版本号（`2.0.0`） | 脚本 / 发布读取版本时 |
-| [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) | v2.0.0 发布说明：亮点、M6 结论、验证证据、升级说明、已知问题、复现命令、免责声明 | 升级 / 发布时 |
+| [CHANGELOG.md](CHANGELOG.md) | 版本变更日志（Keep a Changelog + SemVer）：[2.0.1] 补丁、[2.0.0] 大版本、[1.0.0] 历史摘要 | 查版本变化 / 发版时 |
+| [VERSION](VERSION) | 当前版本号（`2.0.1`） | 脚本 / 发布读取版本时 |
+| [docs/RELEASE_NOTES_v2.0.1.md](docs/RELEASE_NOTES_v2.0.1.md) | v2.0.1 补丁说明：干净克隆测试健壮性（error → skip）、验证证据、升级/兼容性、免责声明 | 升级 / 发布时 |
+| [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) | v2.0.0 发布说明（历史）：亮点、M6 结论、验证证据、升级说明、已知问题、复现命令、免责声明 | 查 v2.0.0 发布内容时 |
 | [docs/M6_INTEGRATION.md](docs/M6_INTEGRATION.md) | M6 成果并入项目1 的说明：文件清单、复现、结论、合规边界 | 核对「M6 已入库」时 |
 | [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md) | M6 研究报告：200 只 / 36 组 OOS 矩阵 / 可执行性检验 / 负结论 | 研究结论与证据 |
 | [docs/M6_QA_AUDIT.md](docs/M6_QA_AUDIT.md) | M6 QA 独立审计：无未来函数 / 复权标签 / purge-embargo / 可复现 / gate | 审计证据 |
@@ -461,6 +462,7 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 
 | 版本 | 日期 | 变更 | 变更人 |
 |---|---|---|---|
+| v2.0.1 | 2026-10-27 | **v2.0.1 补丁发布（干净克隆测试健壮性）**：①`tests/test_backtest_passive.py` 的 `real_bars` fixture 在缺 `runtime/short_term/bars_50.csv` 时由 `assert`（error）改为 `pytest.skip`（干净克隆不再 error，构建数据后自动启用）；②版本链路（VERSION / config / core / UI / SPEC 示例）统一为 2.0.1；③新增 `docs/RELEASE_NOTES_v2.0.1.md` 与 `docs/RELEASE_VERIFICATION_v2.0.0.md` §9 复核记录；④不移动已发布 `v2.0.0` tag，M6 负结论不变 | 发布工程（release-engineer） |
 | v2.0 | 2026-10-27 | **v2.0.0 正式发布（M6 成果并入）**：①新增 `VERSION`、`CHANGELOG.md`、`docs/RELEASE_NOTES_v2.0.0.md`、`docs/M6_INTEGRATION.md`；②README 徽章与当前阶段更新为 v2.0.0 / 405 passed，新增 §4.1「M6 研究成果」与 §4.2「版本与文档」；③M6 成果（200 只 / 349,466 行、36 组 walk-forward OOS、QA 独立审计、P1 被动基准、+27 测试）已在 `main`；**结论为负结果：无可执行短线选股边际，不接入推荐/自动化，UI 维持研究阶段**；④版本常量链路（config.yaml / core / UI meta 兜底）统一为 2.0.0 | 发布工程（release-engineer） |
 | v1.5 | 2026-10-26 | 启动/停止复核（M4 收尾）：`start.bat` 增加端口占用自动切换（8501→8502~8510）、启动日志 `runtime\logs\start.log`、`--check` 预检模式；新增 `scripts\stop.bat`（按端口中文确认结束、多实例保护）；README §2.1/§2.3 更新一键启动说明与首次拉取 3 只示例数据、新增 §2.7 停止服务 | Dev3（dev-trading） |
 | v1.4 | 2026-10-26 | **交付终态校准**：① 页面口径由 9 页统一为 **12 页**（新增 自选池/今日推荐/全市场筛选），并注明逐页状态见 `DOC_INDEX` §3.5；② 数据表口径 22 → **28 张业务表**（22 核心 + 6 扩展，另有 `schema_version`）；③ 测试与交付状态更新（377 passed / 60 deselected / 1 xfailed；init_db/automation/builtin 不再列“待交付”）；④ 标注 M6 研究阶段暂停（`ROADMAP` §8.5）与设置/审计占位项 | PM（pm-quant） |

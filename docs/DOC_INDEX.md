@@ -1,6 +1,6 @@
 # QuantDesk 文档索引与阅读顺序（DOC_INDEX）
 
-> 版本：v1.10 · 2026-10-27 · 作者：PM（pm-quant）；发布登记：release-engineer
+> 版本：v1.11 · 2026-10-27 · 作者：PM（pm-quant）；发布登记：release-engineer
 > 用途：**任何人（用户、新成员、后来的智能体）拿到项目后，知道先读什么、后读什么、哪份是权威、哪份还在写。**
 > 维护：文档有新增/改名/状态变化时更新本文件；文档内容本身由各自 owner 维护（见 §4）。
 
@@ -12,7 +12,7 @@
 - **要写代码**：先读 `docs/SPEC.md`（口径与接口）+ `docs/TASKS.md`（你的任务、文件、验收）+ `docs/ARCHITECTURE.md`（为什么这样设计）。
 - **要用系统**：读 `quantdesk/README.md`（怎么装怎么启）+ `docs/GLOSSARY.md`（术语）+ `docs/ROADMAP.md`（现在到哪一步）；**某个页面空白是设计还是缺陷** → 见 §3.5「UI 页面状态表」。
 - **要验收/接手**：读 `docs/TASKS.md`（契约冻结清单）+ `docs/ROADMAP.md`（每个里程碑的验收演示脚本）+ `docs/ARCHITECTURE.md` §8/§9（降级与安全）。
-- **查版本/发布**：先看 `CHANGELOG.md` 与 `docs/RELEASE_NOTES_v2.0.0.md`；确认「M6 是否已并入项目1」看 `docs/M6_INTEGRATION.md`。
+- **查版本/发布**：先看 `CHANGELOG.md` 与 `docs/RELEASE_NOTES_v2.0.1.md`（当前） / `docs/RELEASE_NOTES_v2.0.0.md`（历史）；确认「M6 是否已并入项目1」看 `docs/M6_INTEGRATION.md`。
 
 ---
 
@@ -39,16 +39,17 @@
 | 文档 | 一句话说明 | 面向谁 | 状态 | 维护者 | 对应任务 |
 |---|---|---|---|---|---|
 | [BRIEF.md](../BRIEF.md) | 项目简报：用户意图转译、合规口径（含不承诺收益/UBA）、**范围 F1–F15（MVP F1–F9 + Phase 2 F10–F15）**、技术栈（CPU-only/不引入 DL）、目录与接口契约、里程碑 M0–M6、已知风险——**团队唯一事实来源** | 全员、后来的智能体 | ✅ **v0.3** 已完成 | Lead | — |
-| [README.md](../README.md) | 项目门面：一句话介绍、快速开始（一键启动/环境自检/手动启动）、目录结构、当前进度（含 **§4.1 M6 研究成果**、§4.2 版本与文档）、FAQ、安全免责、文档索引入口（**终态 12 页**） | **用户**、新成员 | ✅ **v2.0** 已完成（v2.0.0 发布） | 发布工程（release-engineer） | M0-08 起 / v2.0 |
-| [CHANGELOG.md](../CHANGELOG.md) | 变更日志（Keep a Changelog + SemVer）：**[2.0.0]**（M6 研究框架并入 + 版本化）与 **[1.0.0]**（MVP M0–M5 历史摘要） | 全员、发布/升级者 | ✅ **v2.0.0** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0 |
-| [VERSION](../VERSION) | 当前版本号：`2.0.0`（发布与脚本读取的单一版本文件） | 发布/脚本 | ✅ **2.0.0** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0 |
-| [RELEASE_NOTES_v2.0.0.md](RELEASE_NOTES_v2.0.0.md) | **v2.0.0 发布说明**：亮点、M6 结论摘要（含「不可成交 artifact」）、新增文件清单、验证证据、升级说明、已知问题、复现命令、免责声明 | **用户**、升级者、Lead | ✅ **v1.0** 已完成（2026-10-27） | 发布工程（release-engineer） | v2.0 |
-| [RELEASE_VERIFICATION_v2.0.0.md](RELEASE_VERIFICATION_v2.0.0.md) | **v2.0.0 发布验证报告**：全链路验证结论与证据（测试 / 数据 / 版本 / 文档一致性 / 发布物料自检） | **用户**、Lead | 🧪 由 verify-engineer 生成（发布前冻结） | verify-engineer | v2.0 |
+| [README.md](../README.md) | 项目门面：一句话介绍、快速开始（一键启动/环境自检/手动启动）、目录结构、当前进度（含 **§4.1 M6 研究成果**、§4.2 版本与文档）、FAQ、安全免责、文档索引入口（**终态 12 页**） | **用户**、新成员 | ✅ **v2.0.1** 已完成（v2.0.1 补丁发布） | 发布工程（release-engineer） | M0-08 起 / v2.0.1 |
+| [CHANGELOG.md](../CHANGELOG.md) | 变更日志（Keep a Changelog + SemVer）：**[2.0.1]**（干净克隆测试健壮性补丁）、**[2.0.0]**（M6 研究框架并入 + 版本化）、**[1.0.0]**（MVP M0–M5 历史摘要） | 全员、发布/升级者 | ✅ **v2.0.1** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0.1 |
+| [VERSION](../VERSION) | 当前版本号：`2.0.1`（发布与脚本读取的单一版本文件） | 发布/脚本 | ✅ **2.0.1** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0.1 |
+| [RELEASE_NOTES_v2.0.1.md](RELEASE_NOTES_v2.0.1.md) | **v2.0.1 补丁说明**：干净克隆缺 `runtime/` 数据时测试 error → skip 的问题、修复、验证证据、升级/兼容性、复现、免责 | **用户**、升级者、Lead | ✅ **v1.0** 已完成（2026-10-27） | 发布工程（release-engineer） | v2.0.1 |
+| [RELEASE_NOTES_v2.0.0.md](RELEASE_NOTES_v2.0.0.md) | **v2.0.0 发布说明（历史）**：亮点、M6 结论摘要（含「不可成交 artifact」）、新增文件清单、验证证据、升级说明、已知问题、复现命令、免责声明 | **用户**、升级者、Lead | ✅ **v1.0** 已完成（2026-10-27） | 发布工程（release-engineer） | v2.0 |
+| [RELEASE_VERIFICATION_v2.0.0.md](RELEASE_VERIFICATION_v2.0.0.md) | **v2.0.0 发版验证报告**：全链路验证结论与证据（测试 / 数据 / 环境 / 发版自检 / 界面 / M6 冒烟）；**§9 为 v2.0.0 → v2.0.1 干净源码复核** | **用户**、Lead | ✅ **v1.0** 已完成（2026-10-27，含 §9 复核记录） | verify-engineer / release-engineer（§9） | v2.0 / v2.0.1 |
 | [SPEC.md](SPEC.md) | 需求规格：用户画像、A 股规则口径（含**不复权价格核算**与 `backtest.price_adjust` 配置键）、22+5 张表、接口契约、**F1–F15（MVP 54 + Phase2 29 条 AC）**、风控参数/RK001–RK020、**12 页 UI**、`screen.*`（F14/F15）、12 个 RQ 警告码、8 个开放问题（OQ-6/7/8 已拍板）、14 条设计决策、合规/UBA | 开发、QA、Lead、Integrator | ✅ **v1.7** 已完成（用户目标升级 + F14/F15） | PM | task-4 |
 | [TASKS.md](TASKS.md) | 任务分解：**80 项任务（M0–M6）**、依赖与文件归属、MVP 13 项冻结 + Phase 2 扩展已批准、角色负载与 R1–R8 排期、变更流程 | 开发、QA、Integrator、Lead | ✅ **v1.9** 已完成；**任务状态随执行实时更新** | PM | task-4 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 架构设计：分层与依赖方向、一次自动交易的完整时序、事件主题流转、订单/任务/熔断状态机、部署形态与硬件（**MVP 不需要 GPU**）、扩展点（新增策略/数据源/券商/通知/页面）、故障降级、安全边界、性能设计 | 开发、QA、Integrator、Lead | ✅ v1.0 已完成（M6 架构补充待做） | PM | task-10 |
 | [ROADMAP.md](ROADMAP.md) | 路线图：M0–M6 每阶段目标/交付物/**用户视角验收演示脚本**/轮次人力/风险；非目标与未来扩展（含 GPU/深度学习结论）；**M1 验收基线**；**M6 研究阶段暂停（§8.5）**；交付节奏与变更机制 | **用户**、Lead、QA | ✅ **v1.5** 已完成（M6 暂停口径） | PM | task-10 |
-| [DOC_INDEX.md](DOC_INDEX.md) | 本文件：文档索引、阅读顺序、权威顺序、状态与维护规则、**12 页 UI 页面状态表** | 全员、后来的智能体 | ✅ **v1.10** 已完成 | PM | task-10 / v2.0 |
+| [DOC_INDEX.md](DOC_INDEX.md) | 本文件：文档索引、阅读顺序、权威顺序、状态与维护规则、**12 页 UI 页面状态表** | 全员、后来的智能体 | ✅ **v1.11** 已完成 | PM | task-10 / v2.0.1 |
 | [GLOSSARY.md](GLOSSARY.md) | 术语表：A 股规则类、量化指标类、系统概念类、**Phase 2 新增术语**、缩写，面向**非程序员用户** | **用户**、新成员 | ✅ **v1.1** 已完成 | PM | task-10 |
 
 ### 3.2 设计与实现参考文档
@@ -228,3 +229,4 @@
 | v1.8 | 2026-10-26 | **收尾对齐（Lead 校准）**：①新增 `REVIEW_FINAL.md`（v1.0，最终状态评审）与 README v1.4、ROADMAP v1.5（M6 暂停 §8.5）、ACCEPTANCE v2.0（52 AC 实际状态）索引；②补录 `USER_GUIDE/DEMO_WALKTHROUGH/STRATEGY_RESEARCH/DATA_SOURCES/DATA_QUALITY_NOTES/SCREENER_VALIDATION/SHORT_TERM_MODEL_V1`，登记 `TEST_REPORT.md` 为待交付（QA）；③§3.5 页面表更新为 **12 页实际状态**（screener 已交付·研究阶段；总览/手动交易/持仓/自动化 已接线；策略/设置/日志 部分），`app.py` 页面数改 12；④RUNBOOK 备份恢复脚本状态更新 | pm-quant |
 | v1.9 | 2026-10-26 | **M6 恢复后本轮交付登记**：①新增 `M6_RESEARCH_REPORT.md`（200 只/36 组 OOS 矩阵/统计检验/可执行性/无效判定）、`M6_QA_AUDIT.md`（无未来函数/复权标签/purge-embargo/可复现/gate/数据审计，闭环 F1–F8）、`M6_HANDOFF_PROMPT.md`；②版本同步 `REVIEW_FINAL.md` **v1.1**（M6 进展 + 状态更新）、`SHORT_TERM_MODEL_V1.md` 追加 §7（扩样本复核结论未改变）、`REVIEW_FINAL.md` §2 M6 行由“暂停”改为“本轮完成（仍无可用配置）”；③新增代码 `strategy/m6_research.py`、`scripts/m6_research.py`、`scripts/build_universe_m6.py`、`backtest/validation.py`；新增测试 `tests/test_m6_research.py`（21 用例）、`tests/test_backtest_passive.py`（6 用例）；④P1 回测报告强制“同仓位被动基准 + 样本外标记” | Lead（研究负责人） |
 | v1.10 | 2026-10-27 | **v2.0.0 发布登记**：①新增 `CHANGELOG.md`、`VERSION`、`docs/RELEASE_NOTES_v2.0.0.md`、`docs/M6_INTEGRATION.md`、`docs/RELEASE_VERIFICATION_v2.0.0.md`（验证报告，verify-engineer）索引；②README 升 **v2.0**（徽章 Version 2.0.0 / Tests 405 passed、§4.1 M6 研究成果、§4.2 版本与文档）；③登记 `REVIEW_FINAL.md` **v1.1**、`SHORT_TERM_MODEL_V1.md`（§7 扩样本复核）、`M6_QA_AUDIT.md`（F1–F8 闭环 + F9 结论修正）；④版本常量链路统一 2.0.0（config.yaml / core / UI meta 兜底） | 发布工程（release-engineer） |
+| v1.11 | 2026-10-27 | **v2.0.1 补丁发布登记**：①新增 `docs/RELEASE_NOTES_v2.0.1.md` 索引；②登记 `docs/RELEASE_VERIFICATION_v2.0.0.md` §9「v2.0.0 → v2.0.1 干净源码复核」（v2.0.0 tarball 干净目录 383 passed/17 skipped/5 errors → 修复后 0 error，最终数字以 §9 复核记录为准）；③`CHANGELOG.md` 升 **v2.0.1**（[2.0.1] 补丁 + [2.0.0] 历史保留）、`VERSION`/README/SPEC 示例同步 2.0.1；④`tests/test_backtest_passive.py` fixture 缺数据由 error 改 skip；不移动已发布 `v2.0.0` tag，M6 负结论不变 | 发布工程（release-engineer） |

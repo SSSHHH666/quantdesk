@@ -10,7 +10,7 @@
 
 app:
   name: QuantDesk
-  version: "2.0.0"
+  version: "2.0.1"
   timezone: Asia/Shanghai        # 统一本地时区（交易日/时间戳口径）
   data_dir: ./runtime            # 运行期数据目录（DB、日志、备份、导出）
   log_level: INFO                # DEBUG | INFO | WARNING | ERROR（日志与审计见 core/logging.py）
