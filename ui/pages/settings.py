@@ -380,7 +380,7 @@ def render() -> None:
         with st.container(border=True):
             st.markdown("##### 关于 QuantDesk")
             st.markdown(
-                f"- **版本**：v{meta.get('version', '1.0.0')}\n"
+                f"- **版本**：v{meta.get('version', '2.0.0')}\n"
                 f"- **模式**：模拟盘（实盘未接入；QMT 仅骨架）\n"
                 f"- **配置文件**：`{meta.get('config_source') or meta.get('config_path', 'config.yaml')}`\n"
                 "- **许可证**：个人非商业使用；第三方依赖清单见 `docs/THIRD_PARTY.md`\n"

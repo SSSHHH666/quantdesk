@@ -1,6 +1,6 @@
 # QuantDesk 文档索引与阅读顺序（DOC_INDEX）
 
-> 版本：v1.8 · 2026-10-26 · 作者：PM（pm-quant）
+> 版本：v1.10 · 2026-10-27 · 作者：PM（pm-quant）；发布登记：release-engineer
 > 用途：**任何人（用户、新成员、后来的智能体）拿到项目后，知道先读什么、后读什么、哪份是权威、哪份还在写。**
 > 维护：文档有新增/改名/状态变化时更新本文件；文档内容本身由各自 owner 维护（见 §4）。
 
@@ -12,6 +12,7 @@
 - **要写代码**：先读 `docs/SPEC.md`（口径与接口）+ `docs/TASKS.md`（你的任务、文件、验收）+ `docs/ARCHITECTURE.md`（为什么这样设计）。
 - **要用系统**：读 `quantdesk/README.md`（怎么装怎么启）+ `docs/GLOSSARY.md`（术语）+ `docs/ROADMAP.md`（现在到哪一步）；**某个页面空白是设计还是缺陷** → 见 §3.5「UI 页面状态表」。
 - **要验收/接手**：读 `docs/TASKS.md`（契约冻结清单）+ `docs/ROADMAP.md`（每个里程碑的验收演示脚本）+ `docs/ARCHITECTURE.md` §8/§9（降级与安全）。
+- **查版本/发布**：先看 `CHANGELOG.md` 与 `docs/RELEASE_NOTES_v2.0.0.md`；确认「M6 是否已并入项目1」看 `docs/M6_INTEGRATION.md`。
 
 ---
 
@@ -38,12 +39,16 @@
 | 文档 | 一句话说明 | 面向谁 | 状态 | 维护者 | 对应任务 |
 |---|---|---|---|---|---|
 | [BRIEF.md](../BRIEF.md) | 项目简报：用户意图转译、合规口径（含不承诺收益/UBA）、**范围 F1–F15（MVP F1–F9 + Phase 2 F10–F15）**、技术栈（CPU-only/不引入 DL）、目录与接口契约、里程碑 M0–M6、已知风险——**团队唯一事实来源** | 全员、后来的智能体 | ✅ **v0.3** 已完成 | Lead | — |
-| [README.md](../README.md) | 项目门面：一句话介绍、快速开始（一键启动/环境自检/手动启动）、目录结构、当前进度、FAQ、安全免责、文档索引入口（**终态 12 页**） | **用户**、新成员 | ✅ **v1.4** 已完成（交付终态校准） | Integrator / 交付文档维护（eval-data） | M0-08 起 |
+| [README.md](../README.md) | 项目门面：一句话介绍、快速开始（一键启动/环境自检/手动启动）、目录结构、当前进度（含 **§4.1 M6 研究成果**、§4.2 版本与文档）、FAQ、安全免责、文档索引入口（**终态 12 页**） | **用户**、新成员 | ✅ **v2.0** 已完成（v2.0.0 发布） | 发布工程（release-engineer） | M0-08 起 / v2.0 |
+| [CHANGELOG.md](../CHANGELOG.md) | 变更日志（Keep a Changelog + SemVer）：**[2.0.0]**（M6 研究框架并入 + 版本化）与 **[1.0.0]**（MVP M0–M5 历史摘要） | 全员、发布/升级者 | ✅ **v2.0.0** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0 |
+| [VERSION](../VERSION) | 当前版本号：`2.0.0`（发布与脚本读取的单一版本文件） | 发布/脚本 | ✅ **2.0.0** 已建立（2026-10-27） | 发布工程（release-engineer） | v2.0 |
+| [RELEASE_NOTES_v2.0.0.md](RELEASE_NOTES_v2.0.0.md) | **v2.0.0 发布说明**：亮点、M6 结论摘要（含「不可成交 artifact」）、新增文件清单、验证证据、升级说明、已知问题、复现命令、免责声明 | **用户**、升级者、Lead | ✅ **v1.0** 已完成（2026-10-27） | 发布工程（release-engineer） | v2.0 |
+| [RELEASE_VERIFICATION_v2.0.0.md](RELEASE_VERIFICATION_v2.0.0.md) | **v2.0.0 发布验证报告**：全链路验证结论与证据（测试 / 数据 / 版本 / 文档一致性 / 发布物料自检） | **用户**、Lead | 🧪 由 verify-engineer 生成（发布前冻结） | verify-engineer | v2.0 |
 | [SPEC.md](SPEC.md) | 需求规格：用户画像、A 股规则口径（含**不复权价格核算**与 `backtest.price_adjust` 配置键）、22+5 张表、接口契约、**F1–F15（MVP 54 + Phase2 29 条 AC）**、风控参数/RK001–RK020、**12 页 UI**、`screen.*`（F14/F15）、12 个 RQ 警告码、8 个开放问题（OQ-6/7/8 已拍板）、14 条设计决策、合规/UBA | 开发、QA、Lead、Integrator | ✅ **v1.7** 已完成（用户目标升级 + F14/F15） | PM | task-4 |
 | [TASKS.md](TASKS.md) | 任务分解：**80 项任务（M0–M6）**、依赖与文件归属、MVP 13 项冻结 + Phase 2 扩展已批准、角色负载与 R1–R8 排期、变更流程 | 开发、QA、Integrator、Lead | ✅ **v1.9** 已完成；**任务状态随执行实时更新** | PM | task-4 |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 架构设计：分层与依赖方向、一次自动交易的完整时序、事件主题流转、订单/任务/熔断状态机、部署形态与硬件（**MVP 不需要 GPU**）、扩展点（新增策略/数据源/券商/通知/页面）、故障降级、安全边界、性能设计 | 开发、QA、Integrator、Lead | ✅ v1.0 已完成（M6 架构补充待做） | PM | task-10 |
 | [ROADMAP.md](ROADMAP.md) | 路线图：M0–M6 每阶段目标/交付物/**用户视角验收演示脚本**/轮次人力/风险；非目标与未来扩展（含 GPU/深度学习结论）；**M1 验收基线**；**M6 研究阶段暂停（§8.5）**；交付节奏与变更机制 | **用户**、Lead、QA | ✅ **v1.5** 已完成（M6 暂停口径） | PM | task-10 |
-| [DOC_INDEX.md](DOC_INDEX.md) | 本文件：文档索引、阅读顺序、权威顺序、状态与维护规则、**12 页 UI 页面状态表** | 全员、后来的智能体 | ✅ **v1.8** 已完成 | PM | task-10 |
+| [DOC_INDEX.md](DOC_INDEX.md) | 本文件：文档索引、阅读顺序、权威顺序、状态与维护规则、**12 页 UI 页面状态表** | 全员、后来的智能体 | ✅ **v1.10** 已完成 | PM | task-10 / v2.0 |
 | [GLOSSARY.md](GLOSSARY.md) | 术语表：A 股规则类、量化指标类、系统概念类、**Phase 2 新增术语**、缩写，面向**非程序员用户** | **用户**、新成员 | ✅ **v1.1** 已完成 | PM | task-10 |
 
 ### 3.2 设计与实现参考文档
@@ -60,10 +65,11 @@
 | [DATA_SOURCES.md](DATA_SOURCES.md) | 数据源可用性矩阵与口径（**v1.0**）：aksahre/新浪主备、字段单位、不可得字段清单、R6 扩展表与 v2 迁移说明 | Dev1、Dev2、QA | ✅ v1.0 已完成 | 数据研究支持（eval-data） | M1-02/M6 |
 | [DATA_QUALITY_NOTES.md](DATA_QUALITY_NOTES.md) | 数据质量坑位说明（**v1.0**）：不复权假暴跌、单位、复权、停牌、缺口等实测证据与正确处理方式 | Dev1、Dev2、QA | ✅ v1.0 已完成 | 数据研究支持（eval-data） | M1/M6 |
 | [SCREENER_VALIDATION.md](SCREENER_VALIDATION.md) | 全市场筛选 F15 验证报告（**v1.0**）：2020-01~2026-10、50 只样本、5/10/20 日 RankIC 均为负（-0.029/-0.030/-0.037），结论“无可用正向边际”→ 研究阶段暂停依据 | PM、Lead、Dev2 | ✅ v1.0 已完成 | Dev2 | M6-15 |
-| [SHORT_TERM_MODEL_V1.md](SHORT_TERM_MODEL_V1.md) | 短线模型 v1 实验记录（**已交付 v1.0**）：3 标的/48 折 walk-forward、OOS 命中率 24.83%≈基础概率、扣费期望 -0.22%、MDD -32.41%、`usable=False`；含 v2 实验框架与筛选器负结果 → **研究阶段暂停依据** | Dev2、QA、PM | ✅ **v1.0** 已完成（2026-10-26） | Dev2 | M6-13/M1 |
+| [SHORT_TERM_MODEL_V1.md](SHORT_TERM_MODEL_V1.md) | 短线模型 v1 实验记录（**已交付 v1.0**）：3 标的/48 折 walk-forward、OOS 命中率 24.83%≈基础概率、扣费期望 -0.22%、MDD -32.41%、`usable=False`；含 v2 实验框架与筛选器负结果、**§7 M6 扩样本复核（结论未改变）** → **研究阶段暂停依据** | Dev2、QA、PM | ✅ **v1.0** 已完成（2026-10-26，§7 追加 M6 复核） | Dev2 | M6-13/M1 |
 | [M6_RESEARCH_REPORT.md](M6_RESEARCH_REPORT.md) | **M6 研究报告（v1.0，2026-10-26）**：200 只 A 股 / 2019–2026 / 36 组 walk-forward OOS（6 标签 × 2 特征集 × 3 模型）；预注册门槛 RankIC>0.03 + Top 10 日扣费超额>0 + 命中率显著>基础概率；含多重比较、bootstrap CI、分层、单因子预检、命中率陷阱检验、与 v1/筛选器基线对照、复现命令 | Lead、PM、QA | ✅ v1.0 已完成（2026-10-26） | Lead | M6-18…M6-22 |
-| [M6_QA_AUDIT.md](M6_QA_AUDIT.md) | **M6 QA 独立审计（v1.0）**：无未来函数金标准（截断不变性）、复权标签、purge/embargo、可复现、被动基准对齐、gate 行为、bars_200 数据审计；闭环 8 项缺陷（F1–F8）与证据 | QA、Lead | ✅ v1.0 已完成（2026-10-26） | QA | M6-22 |
-| [M6_HANDOFF_PROMPT.md](M6_HANDOFF_PROMPT.md) | M6 研究阶段接续提示词（**v1.0**）：新会话可直接粘贴的上下文与任务清单、复查命令、常见陷阱 | Lead、后继会话 | ✅ v1.0 已完成（2026-10-26） | Lead | M6 恢复 |
+| [M6_QA_AUDIT.md](M6_QA_AUDIT.md) | **M6 QA 独立审计（v1.0）**：无未来函数金标准（截断不变性）、复权标签、purge/embargo、可复现、被动基准对齐、gate 行为、bars_200 数据审计；闭环 F1–F8 缺陷 + F9 结论修正（不可成交 artifact）与证据 | QA、Lead | ✅ v1.0 已完成（2026-10-26） | QA | M6-22 |
+| [M6_HANDOFF_PROMPT.md](M6_HANDOFF_PROMPT.md) | M6 研究阶段接续提示词（**v1.0**）：新会话可直接粘贴的上下文与任务清单、复查命令、常见陷阱 | Lead、后继会话 | ✅ v1.0 已完成（2026-10-26，已加状态更新） | Lead | M6 恢复 |
+| [M6_INTEGRATION.md](M6_INTEGRATION.md) | **M6 成果并入说明（v1.0，2026-10-27）**：M6 与项目1 的关系、已并入文件清单（代码/测试/报告/审计/P1）、复现命令、负结论摘要、合规边界、对项目1 的影响 | **用户**、Lead、后继会话 | ✅ **v1.0** 已完成（v2.0.0 发布物料） | 发布工程（release-engineer） | v2.0 |
 | `TEST_REPORT.md` | 测试报告（**待交付**）：全量用例统计、失败/xfail 说明、性能基线；当前口径见 `REVIEW_FINAL.md` §1（377 passed / 60 deselected / 1 xfailed） | QA、Lead | ⏳ 待交付（QA） | QA | M4-06/M5-07 |
 
 ### 3.3 测试与验收
@@ -73,7 +79,7 @@
 | `quantdesk/tests/`（pytest 用例） | 单元/集成/端到端测试；文件按模块命名（`test_data_layer.py`、`test_backtest_rules.py`、`test_risk_gate.py`、`test_paper_broker.py`、`test_automation_pipeline.py`、`e2e_smoke.py` 等） | QA、开发 | 🚧 随任务交付逐步增加 | QA（各 Dev 可加自己模块用例） | M0-10、M1-14…16、M2-11/12、M3-09/10、M4-06 |
 | [REVIEW_M0_R1.md](REVIEW_M0_R1.md) | M0/R1 阶段评审 + **M0 退出复核** + **Phase 2 范围变更评审/批准落地**：AC 对照、P0/P1/P2 处置（含回归用例名）、M0 退出检查清单（C1–C6）、M1 开工顺序、M6 风险与前置检查 | Lead、开发、QA | ✅ **v1.5（含 Phase 2 批准 + M1 修订指针）** 已完成 | PM | — |
 | [REVIEW_M1.md](REVIEW_M1.md) | **M1 研究闭环验收评审（v1.3）**：不复权真实数据基线、4 策略 vs 同仓位被动、**ML OOS AUC 0.4456 负结果**、**短线模型 v1 `usable=False`（48 折 OOS 命中率 24.83%≈基础概率、扣费期望 -0.22%、MDD -32.41%）**、M1 退出结论（功能通过/有效性未证明）、M6 条件核对、**用户目标升级 + F14/F15 登记**、8 项遗留核验 | Lead、开发、QA、**用户** | ✅ **v1.3** 已完成 | PM | — |
-| [REVIEW_FINAL.md](REVIEW_FINAL.md) | **项目最终状态评审（v1.0）**：M0–M5 完成度、已验证能力与证据（377 passed/60 deselected/1 xfailed、release_check PASS 11/0/0、28 表校验、真实回测基线、M2/M3/M4 实测）、研究阶段暂停项（短线 v1 不可用、F14/F15 暂停、设置/审计占位）、**最终交付清单**、上线使用须知与风险声明、最终判断 | Lead、**用户**、QA | ✅ **v1.0** 已完成（关键收尾交付） | PM | — |
+| [REVIEW_FINAL.md](REVIEW_FINAL.md) | **项目最终状态评审（v1.1）**：M0–M5 完成度、已验证能力与证据（28 表校验、真实回测基线、M2/M3/M4 实测）、研究阶段暂停项、**最终交付清单**、上线使用须知与风险声明、**§9 M6 本轮进展（200 只 / 36 组 OOS，结论仍无可用配置）** | Lead、**用户**、QA | ✅ **v1.1** 已完成（2026-10-26，M6 进展登记） | PM | v2.0 登记 |
 | [ACCEPTANCE_CHECKLIST.md](ACCEPTANCE_CHECKLIST.md) | 验收清单（**v2.0 项目终态版**）：52 条 AC 逐项实际状态（42 ✅ / 8 🟡 / 1 ☐ / 1 ⊘）+ 证据命令；G1–G6 与里程碑门禁；10 项未通过/未覆盖原因 | QA、Lead、用户 | ✅ **v2.0** 已完成（2026-10-26） | PM | M5-07 |
 
 ### 3.4 项目外部的调研证据（只读，不在 `quantdesk/` 内）
@@ -221,3 +227,4 @@
 | v1.7 | 2026-10-26 | **用户目标升级 + F14/F15**：①版本同步 BRIEF v0.3（F1–F15）、SPEC v1.7（F14/F15 + `screen.*` + 12 页）、TASKS v1.9（80 项，M6-14…17 P0）、ROADMAP v1.4（M6 17 项，P0 扩为 5 件）、REVIEW_M1 v1.3；②§3.5 页面状态表扩为 **12 页**（新增 `screener.py` = ⏳ 待开发 M6-16）；③登记用户目标“以盈利为目标的选股与自动交易系统”与合规红线（不承诺收益/未过验证不得宣称有效） | pm-quant |
 | v1.8 | 2026-10-26 | **收尾对齐（Lead 校准）**：①新增 `REVIEW_FINAL.md`（v1.0，最终状态评审）与 README v1.4、ROADMAP v1.5（M6 暂停 §8.5）、ACCEPTANCE v2.0（52 AC 实际状态）索引；②补录 `USER_GUIDE/DEMO_WALKTHROUGH/STRATEGY_RESEARCH/DATA_SOURCES/DATA_QUALITY_NOTES/SCREENER_VALIDATION/SHORT_TERM_MODEL_V1`，登记 `TEST_REPORT.md` 为待交付（QA）；③§3.5 页面表更新为 **12 页实际状态**（screener 已交付·研究阶段；总览/手动交易/持仓/自动化 已接线；策略/设置/日志 部分），`app.py` 页面数改 12；④RUNBOOK 备份恢复脚本状态更新 | pm-quant |
 | v1.9 | 2026-10-26 | **M6 恢复后本轮交付登记**：①新增 `M6_RESEARCH_REPORT.md`（200 只/36 组 OOS 矩阵/统计检验/可执行性/无效判定）、`M6_QA_AUDIT.md`（无未来函数/复权标签/purge-embargo/可复现/gate/数据审计，闭环 F1–F8）、`M6_HANDOFF_PROMPT.md`；②版本同步 `REVIEW_FINAL.md` **v1.1**（M6 进展 + 状态更新）、`SHORT_TERM_MODEL_V1.md` 追加 §7（扩样本复核结论未改变）、`REVIEW_FINAL.md` §2 M6 行由“暂停”改为“本轮完成（仍无可用配置）”；③新增代码 `strategy/m6_research.py`、`scripts/m6_research.py`、`scripts/build_universe_m6.py`、`backtest/validation.py`；新增测试 `tests/test_m6_research.py`（21 用例）、`tests/test_backtest_passive.py`（6 用例）；④P1 回测报告强制“同仓位被动基准 + 样本外标记” | Lead（研究负责人） |
+| v1.10 | 2026-10-27 | **v2.0.0 发布登记**：①新增 `CHANGELOG.md`、`VERSION`、`docs/RELEASE_NOTES_v2.0.0.md`、`docs/M6_INTEGRATION.md`、`docs/RELEASE_VERIFICATION_v2.0.0.md`（验证报告，verify-engineer）索引；②README 升 **v2.0**（徽章 Version 2.0.0 / Tests 405 passed、§4.1 M6 研究成果、§4.2 版本与文档）；③登记 `REVIEW_FINAL.md` **v1.1**、`SHORT_TERM_MODEL_V1.md`（§7 扩样本复核）、`M6_QA_AUDIT.md`（F1–F8 闭环 + F9 结论修正）；④版本常量链路统一 2.0.0（config.yaml / core / UI meta 兜底） | 发布工程（release-engineer） |

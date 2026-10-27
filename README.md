@@ -2,11 +2,12 @@
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Streamlit](https://img.shields.io/badge/UI-Streamlit-ff4b4b)
-![Tests](https://img.shields.io/badge/tests-378%20passed-brightgreen)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Tests](https://img.shields.io/badge/tests-405%20passed-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 > 本地运行 · 单用户 · 日频为主 · 个人研究用途
-> 当前阶段：**MVP 交付（M0–M4 通过、M5 有条件通过）；M6 研究阶段暂停**（最后更新：2026-10-26 · 文档版本 v1.5，变更记录见 §8）
+> 当前阶段：**v2.0.0 正式发布（2026-10-27）**——MVP（M0–M5）+ Phase 2（M6 研究阶段）已完成；M6 结论为负结果（**无可执行短线选股边际**），见 §4.1。最后更新：2026-10-27 · 文档版本 v2.0（变更记录见 §8）
 
 ---
 
@@ -168,6 +169,7 @@ scripts\stop.bat 8502 /Y     rem 跳过确认（脚本/演练使用）
 ## 3. 目录结构
 
 > 标注「规划」的目录/文件属于 M0–M4 的交付目标，当前可能尚未创建；以仓库实际文件为准。
+> **v2.0.0 新增文件**（M6 研究框架 / 报告 / QA 审计 / P1 被动基准 / 发布物料）的完整清单见 §4.1、§4.2 与 [docs/M6_INTEGRATION.md](docs/M6_INTEGRATION.md) §3。
 
 ```text
 quantdesk/
@@ -236,20 +238,46 @@ quantdesk/
 
 ## 4. 当前进度
 
-**总体：M0 骨架进行中。** 目标是把「能启动、能建库、能记录」的地基打牢，再进入 M1 研究闭环。
+**总体：M0–M5 MVP 与 M6（Phase 2 策略研究）均已完成；v2.0.0 于 2026-10-27 发布。** M6 结论为负结果：**无可执行短线选股边际**，不接入推荐/自动化，UI 维持「研究阶段」（见 §4.1 与 [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md)）。
 
 | 里程碑 | 状态 | 内容摘要 |
 |---|---|---|
-| **M0 骨架** | 🚧 进行中 | 依赖 + 目录 + 配置 + DB + 日志 + 空 UI 能启动 |
-| M1 研究闭环 | ⏳ 未开始 | 数据层 + 回测 + 3 个内置策略 → 跑出绩效报告 |
-| M2 交易闭环 | ⏳ 未开始 | 模拟盘 + 手动下单 + 持仓/资金曲线 |
-| M3 自动化 | ⏳ 未开始 | 定时任务 + 风控闸门 + 通知 |
-| M4 交付 | ⏳ 未开始 | 实盘适配层骨架 + 全量测试 + 一键启动 + RUNBOOK |
-| M5 打磨 | ⏳ 未开始 | 图表美化、报告导出、示例数据、演示脚本 |
+| **M0 骨架** | ✅ 已退出 | 依赖 + 目录 + 配置 + DB + 日志 + 空 UI 能启动 |
+| **M1 研究闭环** | ✅ 功能通过（有效性未证明） | 数据层 + 回测 + 内置策略 → 跑出绩效报告；同仓位被动基准对照 |
+| **M2 交易闭环** | ✅ 通过 | 模拟盘 + 手动下单 + 持仓/资金曲线 + 唯一风控闸门 |
+| **M3 自动化** | ✅ 通过 | 定时任务 + 通知 + trace 链路；默认关闭 |
+| **M4 交付** | ✅ 通过 | 一键启动/停止 + 全量测试 + RUNBOOK + 备份恢复 + 发版自检 |
+| **M5 打磨** | 🟡 有条件通过 | 12 页 UI、报告导出、示例数据、USER_GUIDE/DEMO；设置/审计/策略实例仍有占位 |
+| **M6 研究（Phase 2）** | ✅ 本轮完成（负结果） | 200 只 / 36 组 walk-forward OOS / QA 独立审计 PASS；**无可用配置**，见 §4.1 |
 
 > 每个里程碑的**用户视角验收演示脚本**见 [docs/ROADMAP.md](docs/ROADMAP.md) §2.3 / §3.3 / §4.3 / §5.3 / §6.3 / §7.3；对应的可勾选清单见 [docs/ACCEPTANCE_CHECKLIST.md](docs/ACCEPTANCE_CHECKLIST.md)。
 
-M0 具体进展（2026-10-25）：
+### 4.1 M6 研究成果（v2.0 新增）
+
+> M6 是 Phase 2「策略研究增值」阶段，成果已并入主仓（`main` 基线 `b5c575a`）。完整实验见 [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md)，独立审计见 [docs/M6_QA_AUDIT.md](docs/M6_QA_AUDIT.md)，并入清单与复现命令见 [docs/M6_INTEGRATION.md](docs/M6_INTEGRATION.md)。
+
+**一句话结论：在日频免费数据上，3/5/10 日选股没有可执行的、统计上可信的边际。**
+
+| 项 | 结果 |
+|---|---|
+| 数据 | 200 只 A 股 / **349,466 行**日线 / 2019-01-02~2026-10-23 / akshare（零 mock）/ 覆盖审计 **13/13 PASS** |
+| 实验 | 6 标签 × 2 特征集 × 3 模型 = **36 组**严格 walk-forward OOS（76–77 折、purge/embargo） |
+| 预注册门槛 | RankIC > 0.03 **且** Top 组 10 日扣费超额 > 0 **且** 命中率显著 > 基础概率 |
+| 结果 | **34/36 组未过门槛**；唯一统计显著的是 `gap_up_1d × gbdt_rank`（RankIC **0.146**、CI [0.138, 0.154]、多重比较 p=0.001） |
+| 可执行性 | 该信号入选票 **17.4%** 在 t 日收盘已封涨停（买不进）；剔除后扣费净超额 **−0.07%~−0.09%/日（负）** → **不可成交 artifact** |
+| 处置 | **无可执行短线选股边际** → 不接入推荐/自动化；UI 维持「研究阶段 · 不构成买入建议 · 不承诺收益」 |
+
+> 数字来源：`docs/M6_RESEARCH_REPORT.md` §0/§7 与 `docs/M6_QA_AUDIT.md` §12；四路独立证据（建模自查 / QA 审计 / backtest-engineer 复核 / Lead 自算）结论一致。研究结论为负结果，**不得**据此宣称任何策略「有效/可跟单」。
+
+### 4.2 版本与文档（v2.0 新增）
+
+- 版本号：根目录 [`VERSION`](VERSION) = `2.0.0`；`config.yaml`、`core/config.py`、`core/__init__.py` 与 UI meta 兜底值同步为 `2.0.0`。
+- 变更日志：[`CHANGELOG.md`](CHANGELOG.md)（[2.0.0] 与 [1.0.0] 历史摘要）。
+- 发布说明：[`docs/RELEASE_NOTES_v2.0.0.md`](docs/RELEASE_NOTES_v2.0.0.md)（亮点 / M6 结论 / 验证证据 / 升级 / 已知问题 / 复现 / 免责）。
+- M6 并入说明：[`docs/M6_INTEGRATION.md`](docs/M6_INTEGRATION.md)。
+- 发布以 GitHub tag `v2.0.0` 与 Release 为准；验证报告见 `docs/RELEASE_VERIFICATION_v2.0.0.md`。
+
+M0–M5 阶段进展历史快照（2026-10-25/26，保留）：
 
 - ✅ **文档基线齐全**：`BRIEF.md`、`docs/SPEC.md`、`docs/TASKS.md`、`docs/ARCHITECTURE.md`、`docs/ROADMAP.md`、`docs/DOC_INDEX.md`、`docs/GLOSSARY.md`、`docs/BORROW_MAP.md`、`docs/THIRD_PARTY.md`
 - ✅ **交付类文档**：`docs/RUNBOOK.md`（运维排障）、`docs/ACCEPTANCE_CHECKLIST.md`（M0–M5 验收清单）
@@ -259,11 +287,11 @@ M0 具体进展（2026-10-25）：
 - ✅ **数据库/配置/日志/事件总线**（M0-02/03/04/05/06）：`core/config.py`、`core/models.py`（**28 张业务表** = 22 核心 + 6 扩展；另有 `schema_version`）、`core/db.py`、`core/logging.py`、`core/events.py`
 - ✅ **Streamlit 入口与页面骨架**（M0-07）：`app.py`（页面动态发现）+ `ui/pages/_common.py`，**12 个页面文件全部落地**（总览/行情/手动交易/策略/回测/持仓/自动化/设置/日志/自选池/今日推荐/全市场筛选），未接线区块显示「建设中」
 - ✅ **策略/回测/交易内核**：`strategy/base.py`、`backtest/broker_sim.py`、`backtest/engine.py`、`backtest/metrics.py`、`trading/broker.py`、`trading/paper.py`、`trading/risk.py`、`trading/portfolio.py`、`trading/order_manager.py`
-- ✅ **测试**：`tests/` 全量 **377 passed, 60 deselected, 1 xfailed**（`pytest -q`，2026-10-26）
+- ✅ **测试**：`tests/` 全量 **405 passed, 60 deselected**（`runtime\_run_pytest.py tests -q`，2026-10-26；M0–M5 阶段基线为 377 passed + 1 xfailed）
 - ✅ **数据层**（M1-01…04）：`data/provider.py`、`data/cache.py`
 - ✅ **12 个页面**：`ui/pages/*.py` 全部就位并暴露 `render()`（逐页状态见 `docs/DOC_INDEX.md` §3.5）
 - ✅ **运行期目录**：`runtime/` 已生成（`quantdesk.db` + `-wal`/`-shm`、`logs/`、`backups/`、`exports/`）
-- 🟡 **研究阶段/占位**：`settings` 保存类与审计查询接口、策略实例创建等仍为占位；M6 研究（短线 v2/全市场筛选验证）**暂停**（见 `docs/ROADMAP.md` §8.5）
+- 🟡 **研究阶段/占位**：`settings` 保存类与审计查询接口、策略实例创建等仍为占位；M6 研究（短线 v2/全市场筛选验证）**本轮已完成，结论为负结果**（无可执行短线选股边际，见 §4.1 与 [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md)）
 - ✅ 依赖版本已对齐（实装版本均在 `requirements.txt` 区间内；精确锁定留 M4-08，见 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) §3.3）
 
 > 以上为 **2026-10-25 21:28 左右的仓库快照**，交付正在并行推进，实际以仓库文件为准；进度以 `docs/TASKS.md` 的任务状态与 Lead 的验收结论为准。
@@ -389,6 +417,7 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 4. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 架构解释（分层/数据流/失败降级/扩展点），**不覆盖契约**
 5. [docs/ROADMAP.md](docs/ROADMAP.md) · [docs/DOC_INDEX.md](docs/DOC_INDEX.md) · [docs/GLOSSARY.md](docs/GLOSSARY.md) — 计划、索引、术语（解释性）
 6. [docs/BORROW_MAP.md](docs/BORROW_MAP.md) · [docs/borrow_map.json](docs/borrow_map.json) — 借鉴来源与许可判定（设计参考）
+7. [CHANGELOG.md](CHANGELOG.md) · [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) — 版本与发布记录（发布历史只增不删）
 
 **全部文档一览**：
 
@@ -408,6 +437,12 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 | [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md) | 第三方依赖与借鉴代码的许可登记、保留声明 | 合规检查 |
 | [requirements.txt](requirements.txt) | 依赖清单与版本区间 | 装依赖 |
 | [config.yaml](config.yaml) | 默认配置（键名已冻结） | 调参数 |
+| [CHANGELOG.md](CHANGELOG.md) | 版本变更日志（Keep a Changelog + SemVer）：[2.0.0] 与 [1.0.0] 历史摘要 | 查版本变化 / 发版时 |
+| [VERSION](VERSION) | 当前版本号（`2.0.0`） | 脚本 / 发布读取版本时 |
+| [docs/RELEASE_NOTES_v2.0.0.md](docs/RELEASE_NOTES_v2.0.0.md) | v2.0.0 发布说明：亮点、M6 结论、验证证据、升级说明、已知问题、复现命令、免责声明 | 升级 / 发布时 |
+| [docs/M6_INTEGRATION.md](docs/M6_INTEGRATION.md) | M6 成果并入项目1 的说明：文件清单、复现、结论、合规边界 | 核对「M6 已入库」时 |
+| [docs/M6_RESEARCH_REPORT.md](docs/M6_RESEARCH_REPORT.md) | M6 研究报告：200 只 / 36 组 OOS 矩阵 / 可执行性检验 / 负结论 | 研究结论与证据 |
+| [docs/M6_QA_AUDIT.md](docs/M6_QA_AUDIT.md) | M6 QA 独立审计：无未来函数 / 复权标签 / purge-embargo / 可复现 / gate | 审计证据 |
 
 ---
 
@@ -418,6 +453,7 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 3. 自动化默认**关闭**，需要用户在界面显式开启；开启后仍受风控闸门、仓位上限与单日亏损熔断约束，可一键停止（停止步骤见 [docs/RUNBOOK.md](docs/RUNBOOK.md) §6）。
 4. 本系统仅供个人研究学习，不构成投资建议；回测收益不代表未来表现；A 股数据来自公开接口，可能存在缺失或延迟。
 5. 第三方代码与依赖的许可信息见 [docs/THIRD_PARTY.md](docs/THIRD_PARTY.md)；GPL/AGPL/非商用项目仅重写思路，不复制代码。
+6. M6 研究结论为负结果：日频免费数据上**无可执行短线选股边际**；推荐/筛选固定标注「研究阶段」，未通过预注册门槛的配置**不接入**推荐与自动化，不得宣称有效。
 
 ---
 
@@ -425,6 +461,7 @@ akshare 的若干接口依赖**未在 akshare 自身依赖里声明**的包，�
 
 | 版本 | 日期 | 变更 | 变更人 |
 |---|---|---|---|
+| v2.0 | 2026-10-27 | **v2.0.0 正式发布（M6 成果并入）**：①新增 `VERSION`、`CHANGELOG.md`、`docs/RELEASE_NOTES_v2.0.0.md`、`docs/M6_INTEGRATION.md`；②README 徽章与当前阶段更新为 v2.0.0 / 405 passed，新增 §4.1「M6 研究成果」与 §4.2「版本与文档」；③M6 成果（200 只 / 349,466 行、36 组 walk-forward OOS、QA 独立审计、P1 被动基准、+27 测试）已在 `main`；**结论为负结果：无可执行短线选股边际，不接入推荐/自动化，UI 维持研究阶段**；④版本常量链路（config.yaml / core / UI meta 兜底）统一为 2.0.0 | 发布工程（release-engineer） |
 | v1.5 | 2026-10-26 | 启动/停止复核（M4 收尾）：`start.bat` 增加端口占用自动切换（8501→8502~8510）、启动日志 `runtime\logs\start.log`、`--check` 预检模式；新增 `scripts\stop.bat`（按端口中文确认结束、多实例保护）；README §2.1/§2.3 更新一键启动说明与首次拉取 3 只示例数据、新增 §2.7 停止服务 | Dev3（dev-trading） |
 | v1.4 | 2026-10-26 | **交付终态校准**：① 页面口径由 9 页统一为 **12 页**（新增 自选池/今日推荐/全市场筛选），并注明逐页状态见 `DOC_INDEX` §3.5；② 数据表口径 22 → **28 张业务表**（22 核心 + 6 扩展，另有 `schema_version`）；③ 测试与交付状态更新（377 passed / 60 deselected / 1 xfailed；init_db/automation/builtin 不再列“待交付”）；④ 标注 M6 研究阶段暂停（`ROADMAP` §8.5）与设置/审计占位项 | PM（pm-quant） |
 | v1.3 | 2026-10-25 | 二次校正（同日 21:28 快照）：① 9 个页面文件与 `render()` 全部落地 → 删除"6 页已交付/3 页占位"的计数表述，改为"9 页已落地、未实现区块显示建设中、以 ui/pages 实际文件为准"（抗漂移表述）；② `data/cache.py`、`backtest/engine.py` 已交付，从"待交付"移入"已交付"；③ `runtime/` 已生成（db+WAL/logs/backups/exports）→ §3 目录树与 FAQ Q6 同步；④ 待交付仅剩 `scripts/init_db.py`、`automation/`、`strategy/builtin/` | 交付文档维护（eval-data） |

@@ -193,7 +193,7 @@ class AppSection(_SectionModel):
     """``app:`` 应用元信息与运行目录。"""
 
     name: str = "QuantDesk"
-    version: str = "1.0.0"
+    version: str = "2.0.0"
     timezone: str = "Asia/Shanghai"
     data_dir: str = "./runtime"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"

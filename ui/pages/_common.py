@@ -200,7 +200,7 @@ def inject_global_css() -> None:
 # ---------------------------------------------------------------------------
 _DEFAULT_META: dict[str, Any] = {
     "name": "QuantDesk",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "timezone": "Asia/Shanghai",
     "log_level": "INFO",
     "provider": "未配置",
@@ -780,7 +780,7 @@ def footer(meta: Mapping[str, Any] | None = None) -> None:
     m = dict(meta or app_meta())
     st.markdown(
         f'<div class="qd-footer">{html.escape(str(m.get("name", "QuantDesk")))} '
-        f'v{html.escape(str(m.get("version", "1.0.0")))} · 模拟盘（实盘未接入）· '
+        f'v{html.escape(str(m.get("version", "2.0.0")))} · 模拟盘（实盘未接入）· '
         "个人非商业研究用途，不构成投资建议；回测/模拟结果不代表未来收益。</div>",
         unsafe_allow_html=True,
     )
